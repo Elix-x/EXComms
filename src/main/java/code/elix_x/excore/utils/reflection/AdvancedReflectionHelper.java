@@ -7,8 +7,6 @@ import java.lang.reflect.Modifier;
 
 import com.google.common.base.Throwables;
 
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
 public class AdvancedReflectionHelper {
 
 	private static final Field fieldConstructorModifiers;
@@ -26,6 +24,38 @@ public class AdvancedReflectionHelper {
 		} catch(Exception e){
 			throw Throwables.propagate(e);
 		}
+	}
+
+	public static Field findField(Class claz, String... names){
+		Exception e = null;
+		Class clas = claz;
+		while(claz != null){
+			for(String name : names){
+				try{
+					return clas.getDeclaredField(name);
+				} catch(Exception ee){
+					e = ee;
+				}
+			}
+			clas = claz.getSuperclass();
+		}
+		throw new IllegalArgumentException(e);
+	}
+
+	public static Method findMethod(Class claz, String[] names, Class... args){
+		Exception e = null;
+		Class clas = claz;
+		while(claz != null){
+			for(String name : names){
+				try{
+					return clas.getDeclaredMethod(name, args);
+				} catch(Exception ee){
+					e = ee;
+				}
+			}
+			clas = claz.getSuperclass();
+		}
+		throw new IllegalArgumentException(e);
 	}
 
 	private static int set(int original, int modifier, boolean on){
@@ -206,7 +236,7 @@ public class AdvancedReflectionHelper {
 		}
 
 		public AField(Class<C> clas, String... names){
-			this(ReflectionHelper.findField(clas, names));
+			this(findField(clas, names));
 		}
 
 		public AField<C, T> set(int modifier, boolean on){
@@ -259,7 +289,7 @@ public class AdvancedReflectionHelper {
 		}
 
 		public AMethod(Class<C> clas, String[] names, Class... args){
-			this(ReflectionHelper.findMethod(clas, null, names, args));
+			this(findMethod(clas, names, args));
 		}
 
 		public AMethod<C, T> set(int modifier, boolean on){
