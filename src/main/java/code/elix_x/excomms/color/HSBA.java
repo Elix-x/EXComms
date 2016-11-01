@@ -1,6 +1,6 @@
-package code.elix_x.excore.utils.color;
+package code.elix_x.excomms.color;
 
-public class HSBA implements IColor {
+public class HSBA implements Color {
 
 	public float hue;
 	public float saturation;

@@ -1,4 +1,4 @@
-package code.elix_x.excore.utils.reflection;
+package code.elix_x.excomms.reflection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 
 import com.google.common.base.Throwables;
 
-public class AdvancedReflectionHelper {
+public class ReflectionHelper {
 
 	private static final Field fieldConstructorModifiers;
 	private static final Field fieldFieldModifiers;
@@ -200,7 +200,7 @@ public class AdvancedReflectionHelper {
 
 		public AConstructor<C> set(int modifier, boolean on){
 			try{
-				fieldConstructorModifiers.setInt(constructor, AdvancedReflectionHelper.set(constructor.getModifiers(), modifier, on));
+				fieldConstructorModifiers.setInt(constructor, ReflectionHelper.set(constructor.getModifiers(), modifier, on));
 			} catch(Exception e){
 				throw Throwables.propagate(e);
 			}
@@ -241,7 +241,7 @@ public class AdvancedReflectionHelper {
 
 		public AField<C, T> set(int modifier, boolean on){
 			try{
-				fieldFieldModifiers.setInt(field, AdvancedReflectionHelper.set(field.getModifiers(), modifier, on));
+				fieldFieldModifiers.setInt(field, ReflectionHelper.set(field.getModifiers(), modifier, on));
 			} catch(Exception e){
 				throw Throwables.propagate(e);
 			}
@@ -294,7 +294,7 @@ public class AdvancedReflectionHelper {
 
 		public AMethod<C, T> set(int modifier, boolean on){
 			try{
-				fieldMethodModifiers.setInt(method, AdvancedReflectionHelper.set(method.getModifiers(), modifier, on));
+				fieldMethodModifiers.setInt(method, ReflectionHelper.set(method.getModifiers(), modifier, on));
 			} catch(Exception e){
 				throw Throwables.propagate(e);
 			}

@@ -1,6 +1,6 @@
-package code.elix_x.excore.utils.math;
+package code.elix_x.excomms.math;
 
-public class AdvancedMathUtils {
+public class MathUtils {
 
 	public static int average(int... is){
 		if(is.length == 0) return 0;

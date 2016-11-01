@@ -1,4 +1,4 @@
-package code.elix_x.excore.utils.data;
+package code.elix_x.excomms.data;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

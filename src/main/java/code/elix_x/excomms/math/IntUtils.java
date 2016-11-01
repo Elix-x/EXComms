@@ -1,4 +1,4 @@
-package code.elix_x.excore.utils.math;
+package code.elix_x.excomms.math;
 
 public class IntUtils {
 

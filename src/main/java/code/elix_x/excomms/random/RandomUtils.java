@@ -1,8 +1,8 @@
-package code.elix_x.excore.utils.random;
+package code.elix_x.excomms.random;
 
 import java.util.Random;
 
-public class AdvancedRandomUtils {
+public class RandomUtils {
 
 	public static double nextDouble(Random random, double d1, double d2){
 		if(d1 == d2){

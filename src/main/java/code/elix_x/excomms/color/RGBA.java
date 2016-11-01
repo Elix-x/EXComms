@@ -1,6 +1,6 @@
-package code.elix_x.excore.utils.color;
+package code.elix_x.excomms.color;
 
-public class RGBA implements IColor {
+public class RGBA implements Color {
 
 	public int r;
 	public int g;

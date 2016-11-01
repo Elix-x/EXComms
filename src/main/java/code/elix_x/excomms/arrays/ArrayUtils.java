@@ -1,6 +1,6 @@
-package code.elix_x.excore.utils.arrays;
+package code.elix_x.excomms.arrays;
 
-public class SpecialArrayUtils {
+public class ArrayUtils {
 
 	public static int min(int... ints){
 		boolean init = false;

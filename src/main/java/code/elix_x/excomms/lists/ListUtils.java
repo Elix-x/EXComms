@@ -1,4 +1,4 @@
-package code.elix_x.excore.utils.lists;
+package code.elix_x.excomms.lists;
 
 import java.util.ArrayList;
 
