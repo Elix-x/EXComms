@@ -1,7 +1,5 @@
 package code.elix_x.excore.utils.color;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 public class HSBA implements IColor {
 
 	public float hue;
@@ -76,23 +74,6 @@ public class HSBA implements IColor {
 	@Override
 	public HSBA toHSBA(){
 		return this;
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt){
-		nbt.setFloat("h", hue);
-		nbt.setFloat("s", saturation);
-		nbt.setFloat("b", brightness);
-		nbt.setFloat("a", alpha);
-		return nbt;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound nbt){
-		hue = nbt.getFloat("h");
-		saturation = nbt.getFloat("s");
-		brightness = nbt.getFloat("b");
-		alpha = nbt.getFloat("a");
 	}
 
 	@Override

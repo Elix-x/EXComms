@@ -1,7 +1,5 @@
 package code.elix_x.excore.utils.color;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 public class RGBA implements IColor {
 
 	public int r;
@@ -153,27 +151,6 @@ public class RGBA implements IColor {
 			if(hue < 0.0F) hue++;
 		}
 		return new HSBA(hue, saturation, brightness, a * 255);
-	}
-
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt){
-		nbt.setInteger("r", r);
-		nbt.setInteger("g", g);
-		nbt.setInteger("b", b);
-		nbt.setInteger("a", a);
-		return nbt;
-	}
-
-	public void readFromNBT(NBTTagCompound nbt){
-		r = nbt.getInteger("r");
-		g = nbt.getInteger("g");
-		b = nbt.getInteger("b");
-		a = nbt.getInteger("a");
-	}
-
-	public static RGBA createFromNBT(NBTTagCompound nbt){
-		RGBA rgba = new RGBA();
-		rgba.readFromNBT(nbt);
-		return rgba;
 	}
 
 	@Override
