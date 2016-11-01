@@ -9,7 +9,7 @@ sourceCompatibility = java_version
 targetCompatibility = java_version
 
 dependencies {
-
+	testCompile "junit:junit:4.12"
 }
 
 archivesBaseName = 'EXComms'
