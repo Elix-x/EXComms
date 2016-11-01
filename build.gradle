@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = java_version
+targetCompatibility = java_version
+
+dependencies {
+
+}
+
+archivesBaseName = 'EXComms'
+version = "${version_major}.${version_minor}.${version_patch}"
+
+jar {
+	if(version_channel != 'release') classifier = version_channel
+}
