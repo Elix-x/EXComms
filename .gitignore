@@ -1,0 +1,8 @@
+﻿# GRADLE
+.gradle
+build/
+
+# ECLIPSE
+.project
+.classpath
+.settings/
