@@ -67,7 +67,7 @@ public class ReflectionHelper {
 		final int modifier;
 
 		private Modifier(){
-			modifier = (int) new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).getDeclaredField(this.name()).get(null);
+			modifier = (int) new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).getDeclaredField(this.name()).setAccessible(true).get(null);
 		}
 
 		private boolean is(int original){
