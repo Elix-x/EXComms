@@ -1,9 +1,8 @@
 package code.elix_x.excomms.data;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import com.google.common.base.Throwables;
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
+import code.elix_x.excomms.reflection.ReflectionHelper.AField;
+import code.elix_x.excomms.reflection.ReflectionHelper.Modifier;
 
 public class DataCopier {
 
@@ -11,18 +10,12 @@ public class DataCopier {
 		return copyData(from, to, false);
 	}
 
-	public static <O> O copyData(O from, O to, boolean propagateExceptions){
-		Class clazz = from.getClass();
-		for(Field field : clazz.getDeclaredFields()){
-			if(!Modifier.isStatic(field.getModifiers())){
-				field.setAccessible(true);
-				try{
-					field.set(to, field.get(from));
-				} catch(IllegalArgumentException e){
-					if(propagateExceptions) Throwables.propagate(e);
-				} catch(IllegalAccessException e){
-					if(propagateExceptions) Throwables.propagate(e);
-				}
+	@SuppressWarnings("unchecked")
+	public static <O, V> O copyData(O from, O to, boolean propagateExceptions){
+		AClass<O> clas = new AClass(to.getClass());
+		for(AField<? super O, ?> field : clas.getFields()){
+			if(!field.is(Modifier.STATIC)){
+				((AField<? super O, V>) field).setAccessible(true).setFinal(false).set(to, ((AField<? super O, V>) field).get(from));
 			}
 		}
 		return to;
