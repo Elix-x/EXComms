@@ -26,7 +26,7 @@ public class DataCopier {
 		AClass<O> clas = new AClass(from.getClass());
 		for(AField<? super O, ?> field : clas.getFields()){
 			if(!field.is(Modifier.STATIC)){
-				((AField<? super O, V>) field).setAccessible(true).setFinal(false).set(to, ((AField<? super O, V>) field).get(from));
+				field.setAccessible(true).setFinal(false).set(to, field.get(from));
 			}
 		}
 		return to;

@@ -315,7 +315,7 @@ public class ReflectionHelper {
 			}
 		}
 
-		public <I extends C> void set(I instance, T t){
+		public <I extends C> void set(I instance, Object t){
 			try{
 				get().set(instance, t);
 			} catch(Exception e){
