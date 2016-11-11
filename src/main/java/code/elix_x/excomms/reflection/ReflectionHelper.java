@@ -1,11 +1,13 @@
 package code.elix_x.excomms.reflection;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
 
-import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 public class ReflectionHelper {
 
@@ -22,13 +24,13 @@ public class ReflectionHelper {
 			fieldMethodModifiers = Method.class.getDeclaredField("modifiers");
 			fieldMethodModifiers.setAccessible(true);
 		} catch(Exception e){
-			throw Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 
-	public static Field findField(Class claz, String... names){
+	public static Field findField(Class<?> claz, String... names){
 		Exception e = null;
-		Class clas = claz;
+		Class<?> clas = claz;
 		while(claz != null){
 			for(String name : names){
 				try{
@@ -42,9 +44,9 @@ public class ReflectionHelper {
 		throw new IllegalArgumentException(e);
 	}
 
-	public static Method findMethod(Class claz, String[] names, Class... args){
+	public static Method findMethod(Class<?> claz, String[] names, Class<?>... args){
 		Exception e = null;
-		Class clas = claz;
+		Class<?> clas = claz;
 		while(claz != null){
 			for(String name : names){
 				try{
@@ -58,12 +60,28 @@ public class ReflectionHelper {
 		throw new IllegalArgumentException(e);
 	}
 
-	private static int set(int original, int modifier, boolean on){
-		if(on){
-			return original | modifier;
-		} else{
-			return original & (~modifier);
+	public static enum Modifier {
+
+		PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, SYNCHRONIZED, VOLATILE, TRANSIENT, NATIVE, INTERFACE, ABSTRACT, STRICT, BRIDGE, VARARGS, SYNTHETIC, ANNOTATION, ENUM, MANDATED;
+
+		final int modifier;
+
+		private Modifier(){
+			modifier = (int) new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).getDeclaredField(this.name()).get(null);
 		}
+
+		private boolean is(int original){
+			return (original & modifier) != 0;
+		}
+
+		private int set(int original, boolean on){
+			if(on){
+				return original | modifier;
+			} else{
+				return original & (~modifier);
+			}
+		}
+
 	}
 
 	public static class AClass<C> {
@@ -78,15 +96,19 @@ public class ReflectionHelper {
 			try{
 				this.clas = (Class<C>) Class.forName(clas);
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
+		}
+
+		public AClass<? super C> getSuperclass(){
+			return new AClass<>(clas.getSuperclass());
 		}
 
 		public boolean isInterface(){
 			return clas.isInterface();
 		}
 
-		public AInterface<C> toInterface(){
+		public AInterface<C> asInterface(){
 			return new AInterface<>(clas);
 		}
 
@@ -94,7 +116,7 @@ public class ReflectionHelper {
 			return clas.isEnum();
 		}
 
-		public <E extends Enum> AEnum<E> toEnum(){
+		public <E extends Enum<E>> AEnum<E> asEnum(){
 			return new AEnum<E>((Class<E>) clas);
 		}
 
@@ -102,20 +124,50 @@ public class ReflectionHelper {
 			return clas.isAnnotation();
 		}
 
-		public AAnnotation<C> toAnnotation(){
+		public AAnnotation<C> asAnnotation(){
 			return new AAnnotation<>(clas);
 		}
 
-		public AConstructor<C> getDeclaredConstructor(Class... args){
-			return new AConstructor(clas, args);
+		public AConstructor<C> getDeclaredConstructor(Class<?>... args){
+			try{
+				return new AConstructor<C>(this, clas.getDeclaredConstructor(args));
+			} catch(ReflectiveOperationException e){
+				throw new RuntimeException(e);
+			}
+		}
+
+		public List<AConstructor<C>> getDeclaredConstructors(){
+			return Lists.transform(Arrays.asList(clas.getDeclaredConstructors()), constructor -> new AConstructor<>(this, (Constructor<C>) constructor));
 		}
 
 		public <T> AField<C, T> getDeclaredField(String... names){
-			return new AField(clas, names);
+			return new AField<C, T>(this, findField(clas, names));
 		}
 
-		public <T> AMethod<C, T> getDeclaredMethod(String[] names, Class... args){
-			return new AMethod(clas, names, args);
+		public List<AField<C, ?>> getDeclaredFields(){
+			return Lists.transform(Arrays.asList(clas.getDeclaredFields()), field -> new AField<>(this, field));
+		}
+
+		@SuppressWarnings("unchecked")
+		public List<AField<? super C, ?>> getFields(){
+			List sup = getSuperclass().getFields();
+			sup.addAll(getDeclaredFields());
+			return sup;
+		}
+
+		public <T> AMethod<C, T> getDeclaredMethod(String[] names, Class<?>... args){
+			return new AMethod<C, T>(this, findMethod(clas, names, args));
+		}
+
+		public List<AMethod<C, ?>> getDeclaredMethods(){
+			return Lists.transform(Arrays.asList(clas.getDeclaredMethods()), method -> new AMethod<>(this, method));
+		}
+
+		@SuppressWarnings("unchecked")
+		public List<AMethod<? super C, ?>> getMethods(){
+			List sup = getSuperclass().getMethods();
+			sup.addAll(getDeclaredMethods());
+			return sup;
 		}
 
 		public static class AInterface<C> extends AClass<C> {
@@ -126,7 +178,7 @@ public class ReflectionHelper {
 
 		}
 
-		public static class AEnum<C extends Enum> extends AClass<C> {
+		public static class AEnum<C extends Enum<C>> extends AClass<C> {
 
 			private AEnum(Class<C> clas){
 				super(clas);
@@ -137,7 +189,7 @@ public class ReflectionHelper {
 			}
 
 			public C getEnum(String name){
-				return (C) Enum.valueOf(clas, name);
+				return Enum.valueOf(clas, name);
 			}
 
 		}
@@ -152,104 +204,102 @@ public class ReflectionHelper {
 
 	}
 
-	private static abstract class ReflectionObject<C, T> {
+	private static abstract class ReflectionObject<C, T, R extends ReflectionObject<C, T, R>> {
 
 		private final AClass<C> clas;
+		private final T t;
 
-		public ReflectionObject(Class<C> clas){
-			this.clas = new AClass<C>(clas);
-		}
-
-		public ReflectionObject(String clas){
-			try{
-				this.clas = new AClass(Class.forName(clas));
-			} catch(Exception e){
-				throw Throwables.propagate(e);
-			}
+		private ReflectionObject(AClass<C> clas, T t){
+			this.clas = clas;
+			this.t = t;
 		}
 
 		public AClass<C> clas(){
 			return clas;
 		}
 
-		public abstract <R extends ReflectionObject<C, T>> R set(int modifier, boolean on);
+		public final T get(){
+			return t;
+		}
 
-		public abstract <R extends ReflectionObject<C, T>> R setAccessible(boolean accessible);
+		public abstract boolean is(Modifier modifier);
 
-		public abstract T get();
+		public abstract R set(Modifier modifier, boolean on);
+
+		public abstract boolean isAccessible();
+
+		public abstract R setAccessible(boolean accessible);
 
 	}
 
-	public static class AConstructor<C> extends ReflectionObject<C, Constructor<C>> {
+	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> {
 
-		private final Constructor<C> constructor;
-
-		public AConstructor(Constructor<C> constructor){
-			super(constructor.getDeclaringClass());
-			this.constructor = constructor;
+		private AccessibleReflectionObject(AClass<C> clas, T t){
+			super(clas, t);
 		}
 
-		public AConstructor(Class<C> clas, Class... args){
-			super(clas);
-			try{
-				this.constructor = clas.getDeclaredConstructor(args);
-			} catch(Exception e){
-				throw Throwables.propagate(e);
-			}
+		@Override
+		public boolean isAccessible(){
+			return get().isAccessible();
 		}
 
-		public AConstructor<C> set(int modifier, boolean on){
+		@Override
+		public R setAccessible(boolean accessible){
+			get().setAccessible(accessible);
+			return (R) this;
+		}
+
+	}
+
+	public static class AConstructor<C> extends AccessibleReflectionObject<C, Constructor<C>, AConstructor<C>> {
+
+		private AConstructor(AClass<C> clas, Constructor<C> constructor){
+			super(clas, constructor);
+		}
+
+		@Override
+		public boolean is(Modifier modifier){
+			return modifier.is(get().getModifiers());
+		}
+
+		@Override
+		public AConstructor<C> set(Modifier modifier, boolean on){
 			try{
-				fieldConstructorModifiers.setInt(constructor, ReflectionHelper.set(constructor.getModifiers(), modifier, on));
+				fieldConstructorModifiers.setInt(get(), modifier.set(get().getModifiers(), on));
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 			return this;
-		}
-
-		public AConstructor<C> setAccessible(boolean accessible){
-			constructor.setAccessible(accessible);
-			return this;
-		}
-
-		public Constructor get(){
-			return constructor;
 		}
 
 		public C newInstance(Object... args){
 			try{
-				return constructor.newInstance(args);
+				return get().newInstance(args);
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 		}
 
 	}
 
-	public static class AField<C, T> extends ReflectionObject<C, Field> {
+	public static class AField<C, T> extends AccessibleReflectionObject<C, Field, AField<C, T>> {
 
-		private final Field field;
-
-		public AField(Field field){
-			super((Class<C>) field.getDeclaringClass());
-			this.field = field;
+		private AField(AClass<C> clas, Field field){
+			super(clas, field);
 		}
 
-		public AField(Class<C> clas, String... names){
-			this(findField(clas, names));
+		@Override
+		public boolean is(Modifier modifier){
+			return modifier.is(get().getModifiers());
 		}
 
-		public AField<C, T> set(int modifier, boolean on){
+		@Override
+		public AField<C, T> set(Modifier modifier, boolean on){
 			try{
-				fieldFieldModifiers.setInt(field, ReflectionHelper.set(field.getModifiers(), modifier, on));
+				fieldFieldModifiers.setInt(get(), modifier.set(get().getModifiers(), on));
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
-			return this;
-		}
-
-		public AField<C, T> setAccessible(boolean accessible){
-			field.setAccessible(accessible);
 			return this;
 		}
 
@@ -257,68 +307,50 @@ public class ReflectionHelper {
 			return set(Modifier.FINAL, finall);
 		}
 
-		public Field get(){
-			return field;
-		}
-
 		public <I extends C> T get(I instance){
 			try{
-				return (T) field.get(instance);
+				return (T) get().get(instance);
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 		}
 
 		public <I extends C> void set(I instance, T t){
 			try{
-				field.set(instance, t);
+				get().set(instance, t);
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 		}
 
 	}
 
-	public static class AMethod<C, T> extends ReflectionObject<C, Method> {
+	public static class AMethod<C, T> extends AccessibleReflectionObject<C, Method, AMethod<C, T>> {
 
-		private final Method method;
-
-		public AMethod(Method method){
-			super((Class<C>) method.getDeclaringClass());
-			this.method = method;
+		private AMethod(AClass<C> clas, Method method){
+			super(clas, method);
 		}
 
-		public AMethod(Class<C> clas, String[] names, Class... args){
-			this(findMethod(clas, names, args));
+		@Override
+		public boolean is(Modifier modifier){
+			return modifier.is(get().getModifiers());
 		}
 
-		public AMethod<C, T> set(int modifier, boolean on){
+		@Override
+		public AMethod<C, T> set(Modifier modifier, boolean on){
 			try{
-				fieldMethodModifiers.setInt(method, ReflectionHelper.set(method.getModifiers(), modifier, on));
+				fieldMethodModifiers.setInt(get(), modifier.set(get().getModifiers(), on));
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 			return this;
 		}
 
-		public AMethod<C, T> setAccessible(boolean accessible){
-			method.setAccessible(accessible);
-			return this;
-		}
-
-		public AMethod<C, T> setFinal(boolean finall){
-			return set(Modifier.FINAL, finall);
-		}
-
-		public Method get(){
-			return method;
-		}
-
 		public <I extends C> T invoke(I instance, Object... args){
 			try{
-				return (T) method.invoke(instance, args);
+				return (T) get().invoke(instance, args);
 			} catch(Exception e){
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
 		}
 
