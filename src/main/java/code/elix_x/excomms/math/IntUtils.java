@@ -2,6 +2,13 @@ package code.elix_x.excomms.math;
 
 public class IntUtils {
 
+	/**
+	 * Returns ancient Roman number representation.
+	 * 
+	 * @param i
+	 *            number
+	 * @return number in ancient Roman representation
+	 */
 	public static String translateIntToRoman(int i){
 		if(i < 1 || i > 3999){
 			return "Invalid Roman Number Value";

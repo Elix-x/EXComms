@@ -16,11 +16,29 @@ import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 
 public class NumberUtils {
 
+	/**
+	 * Converts (almost) any number to {@linkplain BigDecimal}.
+	 * 
+	 * @param number
+	 *            original number
+	 * @return same number but of {@linkplain BigDecimal} type
+	 */
 	public static BigDecimal toBigDecimal(Number number){
+		if(number instanceof BigDecimal) return (BigDecimal) number;
 		return new BigDecimal(number.toString());
 	}
 
+	/**
+	 * Converts {@linkplain BigDecimal} into another number type
+	 * 
+	 * @param number
+	 *            {@linkplain BigDecimal} value of number
+	 * @param n
+	 *            new type of number
+	 * @return number with new type
+	 */
 	public static <N extends Number> N fromBigDecimal(BigDecimal number, Class<N> n){
+		if(n == BigDecimal.class) return (N) number;
 		return new AClass<N>(n).getDeclaredConstructor(String.class).newInstance(number.toString());
 	}
 
