@@ -32,12 +32,12 @@ public class NumberUtils {
 		return maxComparable(Bytes.asList(ints));
 	}
 
-	public static short min(short... ints){
-		return minComparable(Shorts.asList(ints));
+	public static short min(short... shorts){
+		return minComparable(Shorts.asList(shorts));
 	}
 
-	public static short max(short... ints){
-		return maxComparable(Shorts.asList(ints));
+	public static short max(short... shorts){
+		return maxComparable(Shorts.asList(shorts));
 	}
 
 	public static int min(int... ints){
@@ -48,20 +48,20 @@ public class NumberUtils {
 		return maxComparable(Ints.asList(ints));
 	}
 
-	public static long min(long... ints){
-		return minComparable(Longs.asList(ints));
+	public static long min(long... longs){
+		return minComparable(Longs.asList(longs));
 	}
 
-	public static long max(long... ints){
-		return maxComparable(Longs.asList(ints));
+	public static long max(long... longs){
+		return maxComparable(Longs.asList(longs));
 	}
 
-	public static float min(float... ints){
-		return minComparable(Floats.asList(ints));
+	public static float min(float... floats){
+		return minComparable(Floats.asList(floats));
 	}
 
-	public static float max(float... ints){
-		return maxComparable(Floats.asList(ints));
+	public static float max(float... floats){
+		return maxComparable(Floats.asList(floats));
 	}
 
 	public static double min(double... doubles){

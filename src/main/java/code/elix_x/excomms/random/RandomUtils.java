@@ -28,12 +28,12 @@ public class RandomUtils {
 		return nextDouble(random, range, 1000000);
 	}
 
-	public static double nextDouble(Random random, double range, int precisement){
-		return nextDouble(random, range, precisement, false);
+	public static double nextDouble(Random random, double range, int precision){
+		return nextDouble(random, range, precision, false);
 	}
 
-	public static double nextDouble(Random random, double range, int precisement, boolean negAccepted){
-		return random.nextBoolean() || !negAccepted ? random.nextInt((int) (range * precisement)) / (double) precisement : -(random.nextInt((int) (range * precisement)) / (double) precisement);
+	public static double nextDouble(Random random, double range, int precision, boolean negAccepted){
+		return random.nextBoolean() || !negAccepted ? random.nextInt((int) (range * precision)) / (double) precision : -(random.nextInt((int) (range * precision)) / (double) precision);
 	}
 
 }
