@@ -226,7 +226,7 @@ public class ReflectionHelper {
 		public final T get(){
 			return t;
 		}
-		
+
 		public List<Modifier> modifiers(){
 			return Lists.newArrayList(Modifier.values()).stream().filter(modifier -> is(modifier)).collect(Collectors.toList());
 		}
@@ -235,13 +235,17 @@ public class ReflectionHelper {
 
 		public abstract R set(Modifier modifier, boolean on);
 
+	}
+
+	private static interface IAccessibleReflectionObject<C, T, R extends ReflectionObject<C, T, R> & IAccessibleReflectionObject<C, T, R>> {
+
 		public abstract boolean isAccessible();
 
 		public abstract R setAccessible(boolean accessible);
 
 	}
 
-	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> {
+	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> implements IAccessibleReflectionObject<C, T, R> {
 
 		private AccessibleReflectionObject(AClass<C> clas, T t){
 			super(clas, t);
