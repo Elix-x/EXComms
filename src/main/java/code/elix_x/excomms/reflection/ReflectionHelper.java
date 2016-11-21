@@ -4,8 +4,11 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
@@ -100,8 +103,8 @@ public class ReflectionHelper {
 			}
 		}
 
-		public AClass<? super C> getSuperclass(){
-			return new AClass<>(clas.getSuperclass());
+		public Optional<AClass<? super C>> getSuperclass(){
+			return clas.getSuperclass() != null ? Optional.of(new AClass<>(clas.getSuperclass())) : Optional.empty();
 		}
 
 		public boolean isInterface(){
@@ -150,7 +153,8 @@ public class ReflectionHelper {
 
 		@SuppressWarnings("unchecked")
 		public List<AField<? super C, ?>> getFields(){
-			List sup = getSuperclass().getFields();
+			List sup = new ArrayList<>();
+			getSuperclass().ifPresent(clas -> sup.addAll(clas.getFields()));
 			sup.addAll(getDeclaredFields());
 			return sup;
 		}
@@ -165,7 +169,8 @@ public class ReflectionHelper {
 
 		@SuppressWarnings("unchecked")
 		public List<AMethod<? super C, ?>> getMethods(){
-			List sup = getSuperclass().getMethods();
+			List sup = new ArrayList<>();
+			getSuperclass().ifPresent(clas -> sup.addAll(clas.getMethods()));
 			sup.addAll(getDeclaredMethods());
 			return sup;
 		}
