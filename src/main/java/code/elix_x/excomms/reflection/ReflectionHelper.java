@@ -226,6 +226,10 @@ public class ReflectionHelper {
 		public final T get(){
 			return t;
 		}
+		
+		public List<Modifier> modifiers(){
+			return Lists.newArrayList(Modifier.values()).stream().filter(modifier -> is(modifier)).collect(Collectors.toList());
+		}
 
 		public abstract boolean is(Modifier modifier);
 
