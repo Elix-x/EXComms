@@ -12,11 +12,16 @@ cache:
     - "$HOME/.gradle/wrapper/"
 
 deploy:
-  provider: releases
-  api_key:
-    secure: $GITACCESSTOKEN
-  file_glob: true
-  file: "./build/libs/*"
-  skip_cleanup: true
-  on:
-    tags: true
+  - provider: releases
+    api_key:
+      secure: $GITACCESSTOKEN
+    file_glob: true
+    file: "./build/libs/*.jar"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script: /bin/sh ./gitwebpages.sh
+    skip_cleanup: true
+    on:
+      tags: true
