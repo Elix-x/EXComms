@@ -17,15 +17,12 @@ dependencies {
 
 archivesBaseName = 'EXComms'
 version = "${version_major}.${version_minor}.${version_patch}"
+if(version_channel != 'release') version += "-$version_channel"
 group = 'code.elix_x.excomms'
-def classifier = null
-if(version_channel != 'release') classifier = version_channel
-
-jar.classifier = classifier
 
 task generatePom {
     doLast {
-		def pomFile = "$buildDir/libs/$archivesBaseName-$version${classifier != null ? '-' + classifier : ''}.pom"
+		def pomFile = "$buildDir/libs/$archivesBaseName-${version}.pom"
         pom {
             project {
                 name 'EXComms'
@@ -56,24 +53,24 @@ task generatePom {
     }
 }
 
-task sourceJar(type: Jar) {
+task sourcesJar(type: Jar){
+	classifier = "sources"
     from sourceSets.main.allJava
 }
-sourceJar.classifier = "$classifier-sources"
 
 task javadocJar(type: Jar, dependsOn: 'javadoc'){
+	classifier = "javadoc"
 	from "$buildDir/docs/javadoc"
 }
-javadocJar.classifier = "$classifier-javadoc"
 
-tasks.withType(Jar) { task ->
+tasks.withType(Jar){ task ->
     task.doLast {
 		ant.checksum file: task.archivePath
 		ant.checksum(file: task.archivePath, algorithm: 'SHA')
 	}
 }
 
-task postBuild(dependsOn: ['sourceJar', 'javadocJar', 'generatePom']){
+task postBuild(dependsOn: ['sourcesJar', 'javadocJar', 'generatePom']){
 
 }
 

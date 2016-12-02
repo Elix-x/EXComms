@@ -1,22 +1,22 @@
 #!/bin/bash
 
-echo "Hello!"
+USER="Elix-x"
+NAME="EXComms"
+GROUP="code/elix_x/excomms"
 
-git config --global user.email "Elix-x@users.noreply.github.com"
+git config --global user.email "$USER@users.noreply.github.com"
 git config --global user.name "Travis-Maven"
 
-git clone https://Elix-x:$GITACCESSTOKEN@github.com/Elix-x/Elix-x.github.io.git
+git clone https://$USER:$GITACCESSTOKEN@github.com/$USER/$USER.github.io.git
 
-mkdir -p "Elix-x.github.io/maven2/code/elix_x/excomms/EXComms/$TRAVIS_BRANCH/"
-cp -r "./build/libs/." "./Elix-x.github.io/maven2/code/elix_x/excomms/EXComms/$TRAVIS_BRANCH/"
+mkdir -p "$USER.github.io/maven2/$GROUP/$NAME/$TRAVIS_BRANCH/"
+cp -r "./build/libs/." "./$USER.github.io/maven2/$GROUP/$NAME/$TRAVIS_BRANCH/"
 
-cd "Elix-x.github.io"
+cd "$USER.github.io"
 
 git add *
-git commit -m "Uploading maven artifacts for EXComms for $TRAVIS_BRANCH"
+git commit -m "Uploading maven artifacts for $NAME for $TRAVIS_BRANCH"
 git push
 
-echo "Done!"
-
 cd ./..
-rm -rf "Elix-x.github.io"
+rm -rf "$USER.github.io"
