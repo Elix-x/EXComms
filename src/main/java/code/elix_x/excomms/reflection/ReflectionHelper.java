@@ -4,8 +4,13 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.Lists;
 
@@ -100,8 +105,8 @@ public class ReflectionHelper {
 			}
 		}
 
-		public AClass<? super C> getSuperclass(){
-			return new AClass<>(clas.getSuperclass());
+		public Optional<AClass<? super C>> getSuperclass(){
+			return clas.getSuperclass() != null ? Optional.of(new AClass<>(clas.getSuperclass())) : Optional.empty();
 		}
 
 		public boolean isInterface(){
@@ -150,7 +155,8 @@ public class ReflectionHelper {
 
 		@SuppressWarnings("unchecked")
 		public List<AField<? super C, ?>> getFields(){
-			List sup = getSuperclass().getFields();
+			List sup = new ArrayList<>();
+			getSuperclass().ifPresent(clas -> sup.addAll(clas.getFields()));
 			sup.addAll(getDeclaredFields());
 			return sup;
 		}
@@ -165,7 +171,8 @@ public class ReflectionHelper {
 
 		@SuppressWarnings("unchecked")
 		public List<AMethod<? super C, ?>> getMethods(){
-			List sup = getSuperclass().getMethods();
+			List sup = new ArrayList<>();
+			getSuperclass().ifPresent(clas -> sup.addAll(clas.getMethods()));
 			sup.addAll(getDeclaredMethods());
 			return sup;
 		}
@@ -180,16 +187,49 @@ public class ReflectionHelper {
 
 		public static class AEnum<C extends Enum<C>> extends AClass<C> {
 
+			private static final AClass<?> reflectionFactory = new AClass<>("sun.reflect.ReflectionFactory");
+			private static final AMethod getReflectionFactory = reflectionFactory.getDeclaredMethod(new String[]{"getReflectionFactory"}).setAccessible(true);
+			private static final AMethod newConstructorAccessor = reflectionFactory.getDeclaredMethod(new String[]{"newConstructorAccessor"}, Constructor.class).setAccessible(true);
+			private static final AClass<?> constructorAccessor = new AClass<>("sun.reflect.ConstructorAccessor");
+			private static final AMethod newInstance = constructorAccessor.getDeclaredMethod(new String[]{"newInstance"}, Object[].class).setAccessible(true);
+
+			private final AField<C, C[]> VALUES;
+			private final Object factory;
+
 			private AEnum(Class<C> clas){
 				super(clas);
+				VALUES = getDeclaredField("$VALUES", "ENUM$VALUES");
+				VALUES.setAccessible(true).setFinal(false);
+				factory = getReflectionFactory.invoke(null);
+			}
+
+			public C[] enums(){
+				return clas.getEnumConstants();
 			}
 
 			public C getEnum(int ordinal){
-				return clas.getEnumConstants()[ordinal];
+				return enums()[ordinal];
 			}
 
 			public C getEnum(String name){
 				return Enum.valueOf(clas, name);
+			}
+
+			public C createEnum(String name, Object... params){
+				params = ArrayUtils.addAll(new Object[]{name, enums().length}, params);
+				Class[] paramc = Arrays.stream(params).map(param -> param.getClass()).collect(Collectors.toList()).toArray(new Class[0]);
+				paramc[1] = int.class;
+				return (C) newInstance.invoke(newConstructorAccessor.invoke(factory, getDeclaredConstructor(paramc).get()), (Object) params);
+			}
+
+			public C addEnum(String name, Object... params){
+				C c = createEnum(name, params);
+				VALUES.set(null, ArrayUtils.add(clas.getEnumConstants(), c));
+				return c;
+			}
+
+			public void removeEnum(C c){
+				VALUES.set(null, ArrayUtils.removeElement(enums(), c));
 			}
 
 		}
@@ -222,9 +262,17 @@ public class ReflectionHelper {
 			return t;
 		}
 
+		public List<Modifier> modifiers(){
+			return Lists.newArrayList(Modifier.values()).stream().filter(modifier -> is(modifier)).collect(Collectors.toList());
+		}
+
 		public abstract boolean is(Modifier modifier);
 
 		public abstract R set(Modifier modifier, boolean on);
+
+	}
+
+	private static interface IAccessibleReflectionObject<C, T, R extends ReflectionObject<C, T, R> & IAccessibleReflectionObject<C, T, R>> {
 
 		public abstract boolean isAccessible();
 
@@ -232,7 +280,7 @@ public class ReflectionHelper {
 
 	}
 
-	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> {
+	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> implements IAccessibleReflectionObject<C, T, R> {
 
 		private AccessibleReflectionObject(AClass<C> clas, T t){
 			super(clas, t);

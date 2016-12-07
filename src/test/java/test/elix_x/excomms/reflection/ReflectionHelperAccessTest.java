@@ -10,6 +10,7 @@ public class ReflectionHelperAccessTest {
 
 	private String privateField = "This should not be here!";
 	private final Object privateFinalField = "This should not be here!";
+	private static final Object privateStaticFinalField = "This should not be here!";
 	private boolean called = false;
 
 	@Test
@@ -22,6 +23,9 @@ public class ReflectionHelperAccessTest {
 
 		clas.getDeclaredField("privateFinalField").setAccessible(true).setFinal(false).set(this, shouldBe);
 		assertEquals("Private final replacement was not successful", shouldBe, privateFinalField);
+		
+		clas.getDeclaredField("privateStaticFinalField").setAccessible(true).setFinal(false).set(null, shouldBe);
+		assertEquals("Private static final replacement was not successful", shouldBe, privateStaticFinalField);
 
 		clas.getDeclaredMethod(new String[]{"privateMethod"}).setAccessible(true).invoke(this);
 		assertTrue("Private method call was successful", called);
