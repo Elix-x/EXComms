@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.google.common.collect.Lists;
 
 public class ReflectionHelper {
@@ -185,16 +187,49 @@ public class ReflectionHelper {
 
 		public static class AEnum<C extends Enum<C>> extends AClass<C> {
 
+			private static final AClass<?> reflectionFactory = new AClass<>("sun.reflect.ReflectionFactory");
+			private static final AMethod getReflectionFactory = reflectionFactory.getDeclaredMethod(new String[]{"getReflectionFactory"}).setAccessible(true);
+			private static final AMethod newConstructorAccessor = reflectionFactory.getDeclaredMethod(new String[]{"newConstructorAccessor"}, Constructor.class).setAccessible(true);
+			private static final AClass<?> constructorAccessor = new AClass<>("sun.reflect.ConstructorAccessor");
+			private static final AMethod newInstance = constructorAccessor.getDeclaredMethod(new String[]{"newInstance"}, Object[].class).setAccessible(true);
+
+			private final AField<C, C[]> VALUES;
+			private final Object factory;
+
 			private AEnum(Class<C> clas){
 				super(clas);
+				VALUES = getDeclaredField("$VALUES", "ENUM$VALUES");
+				VALUES.setAccessible(true).setFinal(false);
+				factory = getReflectionFactory.invoke(null);
+			}
+
+			public C[] enums(){
+				return clas.getEnumConstants();
 			}
 
 			public C getEnum(int ordinal){
-				return clas.getEnumConstants()[ordinal];
+				return enums()[ordinal];
 			}
 
 			public C getEnum(String name){
 				return Enum.valueOf(clas, name);
+			}
+
+			public C createEnum(String name, Object... params){
+				params = ArrayUtils.addAll(new Object[]{name, enums().length}, params);
+				Class[] paramc = Arrays.stream(params).map(param -> param.getClass()).collect(Collectors.toList()).toArray(new Class[0]);
+				paramc[1] = int.class;
+				return (C) newInstance.invoke(newConstructorAccessor.invoke(factory, getDeclaredConstructor(paramc).get()), (Object) params);
+			}
+
+			public C addEnum(String name, Object... params){
+				C c = createEnum(name, params);
+				VALUES.set(null, ArrayUtils.add(clas.getEnumConstants(), c));
+				return c;
+			}
+
+			public void removeEnum(C c){
+				VALUES.set(null, ArrayUtils.removeElement(enums(), c));
 			}
 
 		}
