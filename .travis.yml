@@ -11,15 +11,17 @@ cache:
     - "$HOME/.gradle/caches/"
     - "$HOME/.gradle/wrapper/"
 
-before_deploy:
-  - export RELEASE_FILE=$(ls ./build/libs/*.jar)
-
 deploy:
-  provider: releases
-  api_key:
-    secure: $GITACCESSTOKEN
-  file_glob: true
-  file: "${RELEASE_FILE}"
-  skip_cleanup: true
-  on:
-    tags: true
+  - provider: releases
+    api_key:
+      secure: $GITACCESSTOKEN
+    file_glob: true
+    file: "./build/libs/*.jar"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script: /bin/sh ./gitwebpages.sh
+    skip_cleanup: true
+    on:
+      tags: true

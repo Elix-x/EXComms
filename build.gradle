@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -16,7 +17,61 @@ dependencies {
 
 archivesBaseName = 'EXComms'
 version = "${version_major}.${version_minor}.${version_patch}"
+if(version_channel != 'release') version += "-$version_channel"
+group = 'code.elix_x.excomms'
 
-jar {
-	if(version_channel != 'release') classifier = version_channel
+task generatePom {
+    doLast {
+		def pomFile = "$buildDir/libs/$archivesBaseName-${version}.pom"
+        pom {
+            project {
+                name 'EXComms'
+				description 'Elix\'x Common Library for Java 8+'
+				url 'https://github.com/Elix-x/EXComms'
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+				developers {
+					developer {
+						name 'Elix X'
+						email 'elix.x.ggl@gmail.com'
+						url 'https://github.com/Elix-x'
+					}
+				}
+				scm {
+					connection 'scm:git:git://github.com/Elix-x/EXComms.git'
+					developerConnection 'scm:git:ssh://github.com:Elix-x/EXComms.git'
+					url 'https://github.com/Elix-x/EXComms/tree/master'
+				}
+            }
+        }.writeTo(pomFile)
+		ant.checksum file: pomFile
+		ant.checksum(file: pomFile, algorithm: 'SHA')
+    }
 }
+
+task sourcesJar(type: Jar){
+	classifier = "sources"
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: 'javadoc'){
+	classifier = "javadoc"
+	from "$buildDir/docs/javadoc"
+}
+
+tasks.withType(Jar){ task ->
+    task.doLast {
+		ant.checksum file: task.archivePath
+		ant.checksum(file: task.archivePath, algorithm: 'SHA')
+	}
+}
+
+task postBuild(dependsOn: ['sourcesJar', 'javadocJar', 'generatePom']){
+
+}
+
+assemble.finalizedBy postBuild
