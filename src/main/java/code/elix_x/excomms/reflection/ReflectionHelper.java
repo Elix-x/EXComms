@@ -105,6 +105,10 @@ public class ReflectionHelper {
 			}
 		}
 
+		public Class<C> get(){
+			return clas;
+		}
+
 		public Optional<AClass<? super C>> getSuperclass(){
 			return clas.getSuperclass() != null ? Optional.of(new AClass<>(clas.getSuperclass())) : Optional.empty();
 		}
