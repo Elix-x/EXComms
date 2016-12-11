@@ -1,27 +1,13 @@
 package code.elix_x.excomms.serialization;
 
-import com.google.common.collect.ImmutableList;
+public interface Serializer<GenD, SpD extends GenD, GenS, SpS extends GenS, SerM extends SerializerMain<GenD, GenS, SerM>> {
 
-public class Serializer<S, H extends Serializer<S, H>> {
+	boolean acceptsS(GenD o);
 
-	private final ImmutableList<SerializationVisitor<?, ? extends S, H>> visitors;
-	
-	public Serializer(SerializationVisitor<?, ? extends S, H> visitors){
-		this.visitors = ImmutableList.of(visitors);
-	}
-	
-	public <T, R extends S> R serialze(T t){
-		for(SerializationVisitor visitor : visitors){
-			if(visitor.acceptsS(t)) return (R) visitor.serialize(this, t);
-		}
-		throw new IllegalArgumentException("None of visitors could visit " + t);
-	}
-	
-	public <T extends S, R> R deserialize(T t){
-		for(SerializationVisitor visitor : visitors){
-			if(visitor.acceptsD(t)) return (R) visitor.deserialize(this, t);
-		}
-		throw new IllegalArgumentException("None of visitors could visit " + t);
-	}
-	
+	boolean acceptsD(GenS o, Class<GenS> clas);
+
+	SpS serialize(SerM serializerMain, SpD o);
+
+	SpD deserialize(SerM serializerMain, SpS o);
+
 }
