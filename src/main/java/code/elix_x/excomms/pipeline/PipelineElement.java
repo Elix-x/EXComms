@@ -11,4 +11,8 @@ public interface PipelineElement<I, O> extends Function<I, O> {
 		return pipe(t);
 	}
 
+	public static <I, O> PipelineElement<I, O> wrapper(Function<I, O> function){
+		return in -> function.apply(in);
+	}
+
 }
