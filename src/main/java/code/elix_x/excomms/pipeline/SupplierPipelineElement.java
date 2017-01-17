@@ -3,7 +3,7 @@ package code.elix_x.excomms.pipeline;
 import java.util.function.Supplier;
 
 /**
- * Represents a supplier results that can be used in a pipeline. By itself acts as a {@linkplain Supplier}. It can be used as a fixed beginning of a pipeline (whose output does not change based on input).
+ * Represents a supplier of results that can be used in a pipeline. By itself acts as a {@linkplain Supplier}. It can be used as a fixed beginning of a pipeline (whose output does not change based on input).
  * 
  * @author elix_x
  *
