@@ -8,9 +8,9 @@ import java.util.function.Function;
  * @author elix_x
  *
  * @param <I>
- *            Input type
+ *            Input
  * @param <O>
- *            Output type
+ *            Output
  */
 public interface PipelineElement<I, O> extends Function<I, O> {
 
@@ -18,7 +18,7 @@ public interface PipelineElement<I, O> extends Function<I, O> {
 	 * Pipes the input through this element resulting in output. Action is equivalent to {@link Function#apply(Object)};
 	 * 
 	 * @param in
-	 *            input
+	 *            - input
 	 * @return output
 	 */
 	public O pipe(I in);
@@ -32,8 +32,8 @@ public interface PipelineElement<I, O> extends Function<I, O> {
 	 * Wraps the given {@linkplain Function} as a {@linkplain PipelineElement}.
 	 * 
 	 * @param function
-	 *            {@linkplain Function} to wrap.
-	 * @return {@linkplain PipelineElement} wrapper of the function.
+	 *            - {@linkplain Function} to wrap
+	 * @return {@linkplain PipelineElement} wrapper of the function
 	 */
 	public static <I, O> PipelineElement<I, O> wrapper(Function<I, O> function){
 		return in -> function.apply(in);

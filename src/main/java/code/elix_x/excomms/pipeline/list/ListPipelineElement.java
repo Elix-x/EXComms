@@ -22,8 +22,8 @@ public interface ListPipelineElement<I, O> extends PipelineElement<List<I>, List
 	 * Note: This method can be used to wrap {@linkplain ListPipelineElement}s and even stack-wrap them. In doing so, you can obtain pipeline elements which accept list of lists of lists of lists of...
 	 * 
 	 * @param element
-	 *            {@linkplain PipelineElement} to wrap
-	 * @return {@linkplain ListPipelineElement} wrapper of the pipeline element.
+	 *            - {@linkplain PipelineElement} to wrap
+	 * @return {@linkplain ListPipelineElement} wrapper of the pipeline element
 	 */
 	public static <I, O> ListPipelineElement<I, O> wrapper(PipelineElement<I, O> element){
 		return in -> {
