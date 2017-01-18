@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * @param <T>
  *            Supplied output
  */
-public interface SupplierPipelineElement<T> extends PipelineElement<Void, T>, Supplier<T> {
+public interface SupplierPipelineElement<T> extends PipelineElement<Object, T>, Supplier<T> {
 
 	@Override
 	default T get(){
