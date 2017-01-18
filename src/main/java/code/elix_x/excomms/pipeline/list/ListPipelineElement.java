@@ -2,6 +2,7 @@ package code.elix_x.excomms.pipeline.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import code.elix_x.excomms.pipeline.PipelineElement;
 
@@ -16,6 +17,17 @@ import code.elix_x.excomms.pipeline.PipelineElement;
  *            Output(s)
  */
 public interface ListPipelineElement<I, O> extends PipelineElement<List<I>, List<O>> {
+
+	/**
+	 * Wraps the given {@linkplain Function} as a {@linkplain ListPipelineElement}.
+	 * 
+	 * @param function
+	 *            - {@linkplain Function} to wrap
+	 * @return {@linkplain ListPipelineElement} wrapper of the function
+	 */
+	public static <I, O> ListPipelineElement<I, O> wrapper(Function<List<I>, List<O>> function){
+		return in -> function.apply(in);
+	}
 
 	/**
 	 * Wraps the given {@linkplain PipelineElement} into a {@linkplain ListPipelineElement} in order to allow it to accept multiple elements at once. <br>
