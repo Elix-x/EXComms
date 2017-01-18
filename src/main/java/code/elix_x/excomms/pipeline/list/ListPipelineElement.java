@@ -25,7 +25,7 @@ public interface ListPipelineElement<I, O> extends PipelineElement<List<I>, List
 	 *            - {@linkplain Function} to wrap
 	 * @return {@linkplain ListPipelineElement} wrapper of the function
 	 */
-	public static <I, O> ListPipelineElement<I, O> wrapper(Function<List<I>, List<O>> function){
+	public static <I, O> ListPipelineElement<I, O> wrapperF(Function<List<I>, List<O>> function){
 		return in -> function.apply(in);
 	}
 
@@ -37,7 +37,7 @@ public interface ListPipelineElement<I, O> extends PipelineElement<List<I>, List
 	 *            - {@linkplain PipelineElement} to wrap
 	 * @return {@linkplain ListPipelineElement} wrapper of the pipeline element
 	 */
-	public static <I, O> ListPipelineElement<I, O> wrapper(PipelineElement<I, O> element){
+	public static <I, O> ListPipelineElement<I, O> wrapperE(PipelineElement<I, O> element){
 		return in -> {
 			List<O> out = new ArrayList<>();
 			for(I i : in){
