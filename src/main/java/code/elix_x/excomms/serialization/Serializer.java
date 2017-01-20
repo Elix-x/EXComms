@@ -4,7 +4,7 @@ public interface Serializer<GenD, SpD extends GenD, GenS, SpS extends GenS, SerM
 
 	boolean acceptsS(GenD o);
 
-	boolean acceptsD(GenS o, Class<GenS> clas);
+	boolean acceptsD(GenS o, Class<GenD> clas);
 
 	SpS serialize(SerM serializerMain, SpD o);
 

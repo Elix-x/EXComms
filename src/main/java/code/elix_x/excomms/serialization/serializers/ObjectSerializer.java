@@ -33,7 +33,7 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 	}
 
 	@Override
-	public boolean acceptsD(GenS o, Class<GenS> clas){
+	public boolean acceptsD(GenS o, Class<GenD> clas){
 		return true;
 	}
 

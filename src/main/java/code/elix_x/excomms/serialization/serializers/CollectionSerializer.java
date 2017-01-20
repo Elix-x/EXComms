@@ -16,7 +16,7 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 	}
 
 	@Override
-	public boolean acceptsD(GenS o, Class<GenS> clas){
+	public boolean acceptsD(GenS o, Class<Object> clas){
 		return Collection.class.isAssignableFrom(clas);
 	}
 
