@@ -6,7 +6,7 @@ import code.elix_x.excomms.primitive.Primitive;
 import code.elix_x.excomms.primitive.PrimitiveType;
 import code.elix_x.excomms.serialization.Serializer;
 
-public class BinaryPrimitveSerializer<P extends Primitive<?>> implements Serializer<Object, P, ByteBuffer, ByteBuffer, BinarySerializerMain> {
+public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive<P>, ByteBuffer, ByteBuffer, BinarySerializerMain> {
 
 	private final PrimitiveType type;
 
@@ -25,13 +25,13 @@ public class BinaryPrimitveSerializer<P extends Primitive<?>> implements Seriali
 	}
 
 	@Override
-	public ByteBuffer serialize(BinarySerializerMain serializerMain, P o){
 		return null;
+	public ByteBuffer serialize(BinarySerializerMain serializerMain, Primitive<P> p){
 	}
 
 	@Override
-	public P deserialize(BinarySerializerMain serializerMain, ByteBuffer o){
 		return null;
+	public Primitive<P> deserialize(BinarySerializerMain serializerMain, ByteBuffer buffer){
 	}
 
 }

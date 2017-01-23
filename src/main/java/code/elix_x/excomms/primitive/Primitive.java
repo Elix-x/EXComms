@@ -1,6 +1,6 @@
 package code.elix_x.excomms.primitive;
 
-public class Primitive<P> {
+public final class Primitive<P> {
 
 	private final PrimitiveType type;
 	private P value;
