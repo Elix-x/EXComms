@@ -7,11 +7,11 @@ import code.elix_x.excomms.primitive.PrimitiveType;
 import code.elix_x.excomms.serialization.Serializer;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 
-public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive<P>, ByteBuffer, ByteBuffer, BinarySerializerMain> {
+public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitive<P>, ByteBuffer, ByteBuffer, BinarySerializerMain> {
 
 	private final PrimitiveType type;
 
-	public BinaryPrimitveSerializer(PrimitiveType type){
+	public BinaryPrimitiveSerializer(PrimitiveType type){
 		this.type = type;
 	}
 
