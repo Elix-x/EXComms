@@ -2,7 +2,7 @@ package code.elix_x.excomms.primitive;
 
 public enum PrimitiveType {
 
-	BOOLEAN(boolean.class, Boolean.class, 1), BYTE(byte.class, Byte.class, Byte.SIZE), SHORT(short.class, Short.class, Short.SIZE), INT(int.class, Integer.class, Integer.SIZE), LONG(long.class, Long.class, Long.SIZE), FLOAT(float.class, Float.class, Float.SIZE), DOUBLE(double.class, Double.class, Double.SIZE);
+	BOOLEAN(boolean.class, Boolean.class, 1), BYTE(byte.class, Byte.class, Byte.SIZE), SHORT(short.class, Short.class, Short.SIZE), INT(int.class, Integer.class, Integer.SIZE), LONG(long.class, Long.class, Long.SIZE), FLOAT(float.class, Float.class, Float.SIZE), DOUBLE(double.class, Double.class, Double.SIZE), CHAR(char.class, Character.class, Character.SIZE);
 
 	private final Class<?> primitiveClass;
 	private final Class<?> boxedClass;
