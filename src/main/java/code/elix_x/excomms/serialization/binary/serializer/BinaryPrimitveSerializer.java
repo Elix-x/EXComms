@@ -54,6 +54,7 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 				buffer.getChar(p.getValueAs());
 				break;
 		}
+		buffer.flip();
 		return buffer;
 	}
 
