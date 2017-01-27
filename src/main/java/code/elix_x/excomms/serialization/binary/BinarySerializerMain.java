@@ -1,4 +1,4 @@
-package code.elix_x.excomms.serialization.visit.binary;
+package code.elix_x.excomms.serialization.binary;
 
 import java.nio.ByteBuffer;
 

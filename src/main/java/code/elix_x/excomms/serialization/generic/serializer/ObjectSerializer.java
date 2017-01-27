@@ -1,4 +1,4 @@
-package code.elix_x.excomms.serialization.serializers;
+package code.elix_x.excomms.serialization.generic.serializer;
 
 import java.util.Collections;
 

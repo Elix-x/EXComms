@@ -1,10 +1,11 @@
-package code.elix_x.excomms.serialization.visit.binary;
+package code.elix_x.excomms.serialization.binary.serializer;
 
 import java.nio.ByteBuffer;
 
 import code.elix_x.excomms.primitive.Primitive;
 import code.elix_x.excomms.primitive.PrimitiveType;
 import code.elix_x.excomms.serialization.Serializer;
+import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 
 public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive<P>, ByteBuffer, ByteBuffer, BinarySerializerMain> {
 
