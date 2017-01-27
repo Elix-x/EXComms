@@ -4,9 +4,14 @@ import java.nio.ByteBuffer;
 
 import code.elix_x.excomms.serialization.DVisitor;
 import code.elix_x.excomms.serialization.SVisitor;
+import code.elix_x.excomms.serialization.Serializer;
 import code.elix_x.excomms.serialization.SerializerMain;
 
 public class BinarySerializerMain extends SerializerMain<Object, ByteBuffer, BinarySerializerMain> {
+
+	public BinarySerializerMain(Serializer<Object, ?, ByteBuffer, ?, BinarySerializerMain>... serializers){
+		super(serializers);
+	}
 
 	@Override
 	public <SpS extends ByteBuffer, SpD, Args> SVisitor<Object, ByteBuffer, SpS, BinarySerializerMain, Args> visitorS(Class<SpD> clas){
