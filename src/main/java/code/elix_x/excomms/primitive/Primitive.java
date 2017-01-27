@@ -18,6 +18,11 @@ public final class Primitive<P> {
 		return value;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T> T getValueAs(){
+		return (T) value;
+	}
+
 	public void setValue(P value){
 		this.value = value;
 	}

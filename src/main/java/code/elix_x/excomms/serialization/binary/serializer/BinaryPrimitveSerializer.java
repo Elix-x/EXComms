@@ -30,28 +30,28 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 		ByteBuffer buffer = ByteBuffer.allocate(type.hashCode());
 		switch(type){
 			case BOOLEAN:
-				buffer.put((byte) (((Boolean) p.getValue()) == true ? 1 : 0));
+				buffer.put((byte) (p.<Boolean>getValueAs() == true ? 1 : 0));
 				break;
 			case BYTE:
-				buffer.put((byte) p.getValue());
+				buffer.put(p.<Byte>getValueAs());
 				break;
 			case SHORT:
-				buffer.putShort((short) p.getValue());
+				buffer.putShort(p.getValueAs());
 				break;
 			case INT:
-				buffer.putInt((int) p.getValue());
+				buffer.putInt(p.getValueAs());
 				break;
 			case LONG:
-				buffer.putLong((long) p.getValue());
+				buffer.putLong(p.getValueAs());
 				break;
 			case FLOAT:
-				buffer.putFloat((float) p.getValue());
+				buffer.putFloat(p.getValueAs());
 				break;
 			case DOUBLE:
-				buffer.putDouble((double) p.getValue());
+				buffer.putDouble(p.getValueAs());
 				break;
 			case CHAR:
-				buffer.getChar((char) p.getValue());
+				buffer.getChar(p.getValueAs());
 				break;
 		}
 		return buffer;
