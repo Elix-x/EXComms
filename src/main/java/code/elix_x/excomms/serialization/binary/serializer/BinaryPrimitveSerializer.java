@@ -27,7 +27,7 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 
 	@Override
 	public ByteBuffer serialize(BinarySerializerMain serializerMain, Primitive<P> p){
-		ByteBuffer buffer = ByteBuffer.allocate(type.hashCode());
+		ByteBuffer buffer = ByteBuffer.allocate(type.getBytes());
 		switch(type){
 			case BOOLEAN:
 				buffer.put((byte) (p.<Boolean> getValueAs() == true ? 1 : 0));
