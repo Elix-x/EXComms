@@ -17,12 +17,12 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 
 	@Override
 	public boolean acceptsS(Object o){
-		return o.getClass() == type.getPrimitiveClass() || o.getClass() == type.getBoxedClass();
+		return o instanceof Primitive && ((Primitive) o).getType() == type;
 	}
 
 	@Override
-	public boolean acceptsD(ByteBuffer o, Class<Object> clas){
-		return PrimitiveType.getPrimitive(clas) == type;
+	public boolean acceptsD(ByteBuffer o, Class clas){
+		return clas == Primitive.class;
 	}
 
 	@Override
@@ -30,10 +30,10 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 		ByteBuffer buffer = ByteBuffer.allocate(type.hashCode());
 		switch(type){
 			case BOOLEAN:
-				buffer.put((byte) (p.<Boolean>getValueAs() == true ? 1 : 0));
+				buffer.put((byte) (p.<Boolean> getValueAs() == true ? 1 : 0));
 				break;
 			case BYTE:
-				buffer.put(p.<Byte>getValueAs());
+				buffer.put(p.<Byte> getValueAs());
 				break;
 			case SHORT:
 				buffer.putShort(p.getValueAs());
@@ -90,6 +90,36 @@ public class BinaryPrimitveSerializer<P> implements Serializer<Object, Primitive
 				break;
 		}
 		return p;
+	}
+
+	public static class ActualTypesWrapper<P> implements Serializer<Object, Object, ByteBuffer, ByteBuffer, BinarySerializerMain> {
+
+		private final PrimitiveType type;
+
+		public ActualTypesWrapper(PrimitiveType type){
+			this.type = type;
+		}
+
+		@Override
+		public boolean acceptsS(Object o){
+			return o.getClass() == type.getPrimitiveClass() || o.getClass() == type.getBoxedClass();
+		}
+
+		@Override
+		public boolean acceptsD(ByteBuffer o, Class<Object> clas){
+			return PrimitiveType.getPrimitive(clas) == type;
+		}
+
+		@Override
+		public ByteBuffer serialize(BinarySerializerMain serializerMain, Object o){
+			return serializerMain.serialze(new Primitive(o));
+		}
+
+		@Override
+		public Object deserialize(BinarySerializerMain serializerMain, ByteBuffer o){
+			return serializerMain.deserialize(o, Primitive.class).getValue();
+		}
+
 	}
 
 }
