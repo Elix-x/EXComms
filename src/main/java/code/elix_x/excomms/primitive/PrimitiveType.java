@@ -35,7 +35,7 @@ public enum PrimitiveType {
 		for(PrimitiveType primitive : values()){
 			if(primitive.primitiveClass == clas || primitive.boxedClass == clas) return primitive;
 		}
-		throw new IllegalArgumentException(String.format("Class %s is neither primitive type, nor boxed primitive type!", clas.getName()));
+		return null;
 	}
 
 }
