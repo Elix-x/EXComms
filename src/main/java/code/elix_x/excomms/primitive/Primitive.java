@@ -1,5 +1,8 @@
 package code.elix_x.excomms.primitive;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
+
 public final class Primitive<P> {
 
 	private final PrimitiveType type;
@@ -29,6 +32,11 @@ public final class Primitive<P> {
 
 	public PrimitiveType getType(){
 		return type;
+	}
+
+	@SuppressWarnings("unchecked")
+	public TypeToken<Primitive<P>> typeToken(){
+		return (TypeToken<Primitive<P>>) new TypeToken<Primitive<P>>(){}.where(new TypeParameter<P>(){}, (Class<P>) type.getBoxedClass());
 	}
 
 }
