@@ -1,6 +1,9 @@
 package code.elix_x.excomms.serialization.binary.serializer;
 
+import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
+
+import com.google.common.reflect.TypeToken;
 
 import code.elix_x.excomms.primitive.Primitive;
 import code.elix_x.excomms.primitive.PrimitiveType;
@@ -21,8 +24,8 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 	}
 
 	@Override
-	public boolean acceptsD(ByteBuffer o, Class clas){
-		return clas == Primitive.class;
+	public boolean acceptsD(ByteBuffer o, TypeToken type){
+		return type.getRawType() == Primitive.class && ((ParameterizedType) type.getType()).getActualTypeArguments()[0] == this.type.getBoxedClass();
 	}
 
 	@Override
@@ -106,8 +109,8 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 		}
 
 		@Override
-		public boolean acceptsD(ByteBuffer o, Class<Object> clas){
-			return PrimitiveType.getPrimitive(clas) == type;
+		public boolean acceptsD(ByteBuffer o, TypeToken type){
+			return PrimitiveType.getPrimitive(type.getRawType()) == this.type;
 		}
 
 		@Override
@@ -117,7 +120,7 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 
 		@Override
 		public Object deserialize(BinarySerializerMain serializerMain, ByteBuffer o){
-			return serializerMain.deserialize(o, Primitive.class).getValue();
+			return serializerMain.deserialize(o, new Primitive<>(type).typeToken()).getValue();
 		}
 
 	}

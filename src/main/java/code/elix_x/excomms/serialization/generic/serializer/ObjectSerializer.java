@@ -3,6 +3,7 @@ package code.elix_x.excomms.serialization.generic.serializer;
 import java.util.Collections;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 
 import code.elix_x.excomms.reflection.ReflectionHelper;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
@@ -33,7 +34,7 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 	}
 
 	@Override
-	public boolean acceptsD(GenS o, Class<GenD> clas){
+	public boolean acceptsD(GenS o, TypeToken<GenD> type){
 		return true;
 	}
 

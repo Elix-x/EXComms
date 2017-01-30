@@ -2,6 +2,8 @@ package code.elix_x.excomms.serialization.generic.serializer;
 
 import java.util.Collection;
 
+import com.google.common.reflect.TypeToken;
+
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.excomms.serialization.DVisitor;
 import code.elix_x.excomms.serialization.SVisitor;
@@ -16,8 +18,8 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 	}
 
 	@Override
-	public boolean acceptsD(GenS o, Class<Object> clas){
-		return Collection.class.isAssignableFrom(clas);
+	public boolean acceptsD(GenS o, TypeToken<Object> type){
+		return Collection.class.isAssignableFrom(type.getRawType());
 	}
 
 	@Override
