@@ -10,6 +10,10 @@ public abstract class SerializerMain<GenD, GenS, SerM extends SerializerMain<Gen
 		this.serializers = ImmutableList.copyOf(serializers);
 	}
 
+	public SerializerMain(Iterable<Serializer<GenD, ?, GenS, ?, SerM>> serializers){
+		this.serializers = ImmutableList.copyOf(serializers);
+	}
+
 	public abstract <SpS extends GenS, SpD extends GenD, Args> SVisitor<GenD, GenS, SpS, SerM, Args> visitorS(Class<SpD> clas);
 
 	public abstract <SpS extends GenS, SpD extends GenD, Args> DVisitor<GenD, SpD, GenS, SerM, Args> visitorD(Class<SpS> clas);

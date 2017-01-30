@@ -13,6 +13,10 @@ public class BinarySerializerMain extends SerializerMain<Object, ByteBuffer, Bin
 		super(serializers);
 	}
 
+	public BinarySerializerMain(Iterable<Serializer<Object, ?, ByteBuffer, ?, BinarySerializerMain>> serializers){
+		super(serializers);
+	}
+
 	@Override
 	public <SpS extends ByteBuffer, SpD, Args> SVisitor<Object, ByteBuffer, SpS, BinarySerializerMain, Args> visitorS(Class<SpD> clas){
 		return null;
