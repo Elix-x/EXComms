@@ -54,7 +54,7 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 				buffer.putDouble(p.getValueAs());
 				break;
 			case CHAR:
-				buffer.getChar(p.getValueAs());
+				buffer.putChar(p.getValueAs());
 				break;
 		}
 		buffer.flip();
@@ -88,6 +88,7 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 				break;
 			case CHAR:
 				p = new Primitive<>(buffer.getChar());
+				break;
 			default:
 				p = null;
 				break;
