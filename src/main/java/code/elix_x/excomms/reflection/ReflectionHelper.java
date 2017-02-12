@@ -16,6 +16,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.Lists;
 
+@SuppressWarnings("unchecked")
 public class ReflectionHelper {
 
 	private static final Field fieldConstructorModifiers;
@@ -159,7 +160,6 @@ public class ReflectionHelper {
 			return Lists.transform(Arrays.asList(clas.getDeclaredFields()), field -> new AField<>(this, field));
 		}
 
-		@SuppressWarnings("unchecked")
 		public List<AField<? super C, ?>> getFields(){
 			List sup = new ArrayList<>();
 			getSuperclass().ifPresent(clas -> sup.addAll(clas.getFields()));
@@ -175,7 +175,6 @@ public class ReflectionHelper {
 			return Lists.transform(Arrays.asList(clas.getDeclaredMethods()), method -> new AMethod<>(this, method));
 		}
 
-		@SuppressWarnings("unchecked")
 		public List<AMethod<? super C, ?>> getMethods(){
 			List sup = new ArrayList<>();
 			getSuperclass().ifPresent(clas -> sup.addAll(clas.getMethods()));
