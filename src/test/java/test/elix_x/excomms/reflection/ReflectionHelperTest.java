@@ -1,14 +1,15 @@
 package test.elix_x.excomms.reflection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass.AEnum;
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass.AInterface;
 
 public class ReflectionHelperTest {
 
@@ -71,6 +72,44 @@ public class ReflectionHelperTest {
 		private Insect(Animal predator){
 			this.predator = predator;
 		}
+
+	}
+
+	@Test
+	public void testInterfaces(){
+		AInterface<Plant> iface = new AClass<Plant>(Plant.class).asInterface();
+		Plant bamboo = iface.proxy((Object proxy, Method method, Object[] args) -> {
+			return (boolean) args[0] ? 5 : 1;
+		});
+		Plant poisonBerries = iface.proxy((Object proxy, Method method, Object[] args) -> {
+			boolean sunny = (boolean) args[0];
+			switch(method.getName()){
+				case "getGrowthRate":
+					return sunny ? 2 : 0;
+				case "isPoisonous":
+					return sunny;
+				default:
+					return null;
+			}
+		}, new AClass<Food>(Food.class).asInterface());
+		assertEquals(bamboo.getGrowthRate(true), 5);
+		assertEquals(bamboo.getGrowthRate(false), 1);
+		assertEquals(poisonBerries.getGrowthRate(true), 2);
+		assertEquals(poisonBerries.getGrowthRate(false), 0);
+		assertTrue(poisonBerries instanceof Food);
+		assertEquals(((Food) poisonBerries).isPoisonous(true), true);
+		assertEquals(((Food) poisonBerries).isPoisonous(false), false);
+	}
+
+	interface Plant {
+
+		int getGrowthRate(boolean sunny);
+
+	}
+
+	interface Food {
+
+		boolean isPoisonous(boolean sunny);
 
 	}
 
