@@ -3,7 +3,9 @@ package code.elix_x.excomms.reflection;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.Lists;
 
+@SuppressWarnings("unchecked")
 public class ReflectionHelper {
 
 	private static final Field fieldConstructorModifiers;
@@ -72,7 +75,7 @@ public class ReflectionHelper {
 		final int modifier;
 
 		private Modifier(){
-			modifier = (int) new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).getDeclaredField(this.name()).setAccessible(true).get(null);
+			modifier = new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).<Integer> getDeclaredField(this.name()).setAccessible(true).get(null);
 		}
 
 		private boolean is(int original){
@@ -157,7 +160,6 @@ public class ReflectionHelper {
 			return Lists.transform(Arrays.asList(clas.getDeclaredFields()), field -> new AField<>(this, field));
 		}
 
-		@SuppressWarnings("unchecked")
 		public List<AField<? super C, ?>> getFields(){
 			List sup = new ArrayList<>();
 			getSuperclass().ifPresent(clas -> sup.addAll(clas.getFields()));
@@ -173,7 +175,6 @@ public class ReflectionHelper {
 			return Lists.transform(Arrays.asList(clas.getDeclaredMethods()), method -> new AMethod<>(this, method));
 		}
 
-		@SuppressWarnings("unchecked")
 		public List<AMethod<? super C, ?>> getMethods(){
 			List sup = new ArrayList<>();
 			getSuperclass().ifPresent(clas -> sup.addAll(clas.getMethods()));
@@ -185,6 +186,14 @@ public class ReflectionHelper {
 
 			private AInterface(Class<C> clas){
 				super(clas);
+			}
+
+			public C proxy(InvocationHandler handler, AInterface<?>... interfaces){
+				return proxy(clas.getClassLoader(), handler, interfaces);
+			}
+
+			public C proxy(ClassLoader loader, InvocationHandler handler, AInterface<?>... interfaces){
+				return (C) Proxy.newProxyInstance(loader, Arrays.stream(ArrayUtils.add(interfaces, 0, this)).map(iface -> iface.clas).collect(Collectors.toList()).toArray(new Class<?>[0]), handler);
 			}
 
 		}
