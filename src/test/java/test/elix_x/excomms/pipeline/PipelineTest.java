@@ -1,4 +1,4 @@
-package test.elix_x.excomms.reflection.pipeline;
+package test.elix_x.excomms.pipeline;
 
 import static org.junit.Assert.*;
 
