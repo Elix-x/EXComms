@@ -3,7 +3,9 @@ package code.elix_x.excomms.reflection;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -185,6 +187,14 @@ public class ReflectionHelper {
 
 			private AInterface(Class<C> clas){
 				super(clas);
+			}
+
+			public C proxy(InvocationHandler handler, AInterface<?>... interfaces){
+				return proxy(clas.getClassLoader(), handler, interfaces);
+			}
+
+			public C proxy(ClassLoader loader, InvocationHandler handler, AInterface<?>... interfaces){
+				return (C) Proxy.newProxyInstance(loader, Arrays.stream(ArrayUtils.add(interfaces, 0, this)).map(iface -> iface.clas).collect(Collectors.toList()).toArray(new Class<?>[0]), handler);
 			}
 
 		}
