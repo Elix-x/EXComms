@@ -10,9 +10,9 @@ sourceCompatibility = java_version
 targetCompatibility = java_version
 
 dependencies {
-	compile "com.google.guava:guava:20.0"
-	compile "org.apache.commons:commons-lang3:3.5"
-	testCompile "junit:junit:4.12"
+	compile "com.google.guava:guava:$guava_version"
+	compile "org.apache.commons:commons-lang3:$apache_commons_lang_version"
+	testCompile "junit:junit:$junit_version"
 }
 
 archivesBaseName = 'EXComms'
