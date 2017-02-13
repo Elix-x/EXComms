@@ -1,0 +1,11 @@
+﻿# GRADLE
+.gradle
+build/
+bin/
+
+# ECLIPSE
+.project
+.classpath
+.settings/
+eclipse/*
+!eclipse/codeformat.xml
