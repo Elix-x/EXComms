@@ -2,12 +2,14 @@ package test.elix_x.excomms.serialization.binary;
 
 import static org.junit.Assert.*;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import org.junit.Test;
 
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryPrimitiveSerializer;
+import code.elix_x.excomms.serialization.binary.serializer.BinaryStringSerializer;
 
 public class BinarySerializationTest {
 
@@ -40,6 +42,22 @@ public class BinarySerializationTest {
 
 		char c = (char) random.nextInt();
 		assertEquals("Serialization - deserialization of char failed", c, (char) serializer.deserialize(serializer.serialize(c), char.class));
+	}
+	
+	@Test
+	public void testString(){
+		BinarySerializerMain serializer = new BinarySerializerMain(new BinaryStringSerializer());
+		
+		String s1 = "o/";
+		ByteBuffer b1 = serializer.serialize(s1);
+		byte[] arr = new byte[b1.limit()];
+		b1.get(arr);
+		assertArrayEquals("Serialization of string failed", new byte[]{0, 0, 0, 2, 0x6f, 0x2f}, arr);
+		b1.rewind();
+		assertEquals("Deserialization of string failed", s1, serializer.deserialize(b1, String.class));
+		
+		String s2 = "This IS A load of gibberish text.\nMight as well throw some weird characters in.\nǢȌёΨ֍௵ᔵᜨ\n☭☯☢∞❄♫";
+		assertEquals("Serialization - deserialization of a very long gibberish string failed", s2, serializer.deserialize(serializer.serialize(s2), String.class));
 	}
 
 }
