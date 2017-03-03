@@ -2,7 +2,12 @@ package code.elix_x.excomms.serialization.binary.serializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 
 import code.elix_x.excomms.primitive.Primitive;
@@ -11,6 +16,10 @@ import code.elix_x.excomms.serialization.Serializer;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 
 public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitive<P>, ByteBuffer, ByteBuffer, BinarySerializerMain> {
+
+	public static final ImmutableList<BinaryPrimitiveSerializer<?>> ALLPRIMITIVES = ImmutableList.copyOf(Arrays.stream(PrimitiveType.values()).map(primitive -> new BinaryPrimitiveSerializer<>(primitive)).collect(Collectors.toList()));
+	public static final ImmutableList<ActualTypesWrapper<?>> ALLWRAPPERS = ImmutableList.copyOf(Arrays.stream(PrimitiveType.values()).map(primitive -> new ActualTypesWrapper<>(primitive)).collect(Collectors.toList()));
+	public static final ImmutableList<Serializer<Object, ?, ByteBuffer, ?, BinarySerializerMain>> ALL = ImmutableList.copyOf(ArrayUtils.addAll(ALLPRIMITIVES.toArray(new Serializer[0]), ALLWRAPPERS.toArray(new Serializer[0])));
 
 	private final PrimitiveType type;
 
@@ -116,7 +125,7 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 
 		@Override
 		public ByteBuffer serialize(BinarySerializerMain serializerMain, Object o){
-			return serializerMain.serialze(new Primitive(o));
+			return serializerMain.serialze(new Primitive<>(o));
 		}
 
 		@Override

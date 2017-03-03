@@ -2,14 +2,10 @@ package test.elix_x.excomms.serialization.binary;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
 
-import code.elix_x.excomms.primitive.PrimitiveType;
-import code.elix_x.excomms.serialization.Serializer;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryPrimitiveSerializer;
 
@@ -17,7 +13,7 @@ public class BinarySerializationTest {
 
 	@Test
 	public void testPrimitives(){
-		BinarySerializerMain serializer = new BinarySerializerMain(Arrays.stream(PrimitiveType.values()).flatMap(primitiveType -> Arrays.stream(new Serializer[]{new BinaryPrimitiveSerializer<>(primitiveType), new BinaryPrimitiveSerializer.ActualTypesWrapper<>(primitiveType)})).collect(Collectors.toList()));
+		BinarySerializerMain serializer = new BinarySerializerMain(BinaryPrimitiveSerializer.ALL);
 
 		Random random = new Random();
 
