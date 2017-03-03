@@ -54,7 +54,7 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 	@Override
 	public GenD deserialize(SerM serializerMain, GenS o){
 		DVisitor<GenD, GenD, GenS, SerM, String> visitor = serializerMain.visitorD((Class<GenS>) o.getClass()); 
-		GenD genD = visitor.startVisit((Class<GenD>) serializerMain.deserialize(visitor.visit(CLASS), (Class<GenD>) Class.class));
+		GenD genD = visitor.startVisit(o, (Class<GenD>) serializerMain.deserialize(visitor.visit(CLASS), (Class<GenD>) Class.class));
 		AClass<GenD> clas = new AClass<GenD>((Class<GenD>) genD.getClass());
 		for(AField<? super GenD, ?> field : clas.getFields()){
 			if(Collections.disjoint(blackModifiers, field.modifiers())){
