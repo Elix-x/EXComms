@@ -36,7 +36,7 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 	@Override
 	public SpD deserialize(SerM serializerMain, GenS o){
 		DVisitor<Object, SpD, GenS, SerM, Void> visitor = serializerMain.visitorD((Class<GenS>) o.getClass());
-		SpD spD = visitor.startVisit(o, (Class<SpD>) serializerMain.deserialize(visitor.visit(null), (Class<GenD>) Class.class));
+		SpD spD = visitor.startVisit(o, () -> (Class<SpD>) serializerMain.deserialize(visitor.visit(null), (Class<GenD>) Class.class));
 		while(true){
 			try{
 				spD.add(visitor.visit(null));

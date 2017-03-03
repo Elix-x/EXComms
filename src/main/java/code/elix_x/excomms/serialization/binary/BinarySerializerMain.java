@@ -6,6 +6,7 @@ import code.elix_x.excomms.serialization.DVisitor;
 import code.elix_x.excomms.serialization.SVisitor;
 import code.elix_x.excomms.serialization.Serializer;
 import code.elix_x.excomms.serialization.SerializerMain;
+import code.elix_x.excomms.serialization.binary.visitor.BinaryObjectVisitor;
 
 public class BinarySerializerMain extends SerializerMain<Object, ByteBuffer, BinarySerializerMain> {
 
@@ -19,12 +20,12 @@ public class BinarySerializerMain extends SerializerMain<Object, ByteBuffer, Bin
 
 	@Override
 	public <SpS extends ByteBuffer, SpD, Args> SVisitor<Object, ByteBuffer, SpS, BinarySerializerMain, Args> visitorS(Class<SpD> clas){
-		return null;
+		return new BinaryObjectVisitor(this);
 	}
 
 	@Override
 	public <SpS extends ByteBuffer, SpD, Args> DVisitor<Object, SpD, ByteBuffer, BinarySerializerMain, Args> visitorD(Class<SpS> clas){
-		return null;
+		return new BinaryObjectVisitor(this);
 	}
 
 }
