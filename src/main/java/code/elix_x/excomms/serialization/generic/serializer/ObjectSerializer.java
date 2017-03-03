@@ -42,10 +42,10 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 	public GenS serialize(SerM serializerMain, GenD o){
 		AClass<GenD> clas = new AClass<>((Class<GenD>) o.getClass());
 		SVisitor<GenD, GenS, GenS, SerM, String> visitor = serializerMain.visitorS(clas.get());
-		visitor.visit(serializerMain.serialze((GenD) clas.get()), CLASS);
+		visitor.visit(serializerMain.serialize((GenD) clas.get()), CLASS);
 		for(AField<? super GenD, ?> field : clas.getFields()){
 			if(Collections.disjoint(blackModifiers, field.modifiers())){
-				visitor.visit(serializerMain.serialze((GenD) field.setAccessible(true).get(o)), field.get().getName());
+				visitor.visit(serializerMain.serialize((GenD) field.setAccessible(true).get(o)), field.get().getName());
 			}
 		}
 		return visitor.endVisit();

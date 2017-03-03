@@ -26,9 +26,9 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 	public GenS serialize(SerM serializerMain, SpD o){
 		AClass<SpD> clas = new AClass<>((Class<SpD>) o.getClass());
 		SVisitor<Object, GenS, GenS, SerM, Void> visitor = serializerMain.visitorS(clas.get());
-		visitor.visit(serializerMain.serialze(clas.get()), null);
+		visitor.visit(serializerMain.serialize(clas.get()), null);
 		for(Object oo : o){
-			visitor.visit(serializerMain.serialze(oo), null);
+			visitor.visit(serializerMain.serialize(oo), null);
 		}
 		return visitor.endVisit();
 	}

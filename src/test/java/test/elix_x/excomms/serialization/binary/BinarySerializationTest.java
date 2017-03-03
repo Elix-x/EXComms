@@ -18,28 +18,28 @@ public class BinarySerializationTest {
 		Random random = new Random();
 
 		boolean b = random.nextBoolean();
-		assertEquals("Serialization - deserialization of boolean failed", b, serializer.deserialize(serializer.serialze(b), boolean.class));
+		assertEquals("Serialization - deserialization of boolean failed", b, serializer.deserialize(serializer.serialize(b), boolean.class));
 
 		byte by = (byte) random.nextInt(Byte.MAX_VALUE);
-		assertEquals("Serialization - deserialization of byte failed", by, (byte) serializer.deserialize(serializer.serialze(by), byte.class));
+		assertEquals("Serialization - deserialization of byte failed", by, (byte) serializer.deserialize(serializer.serialize(by), byte.class));
 
 		short s = (short) random.nextInt(Short.MAX_VALUE);
-		assertEquals("Serialization - deserialization of short failed", s, (short) serializer.deserialize(serializer.serialze(s), short.class));
+		assertEquals("Serialization - deserialization of short failed", s, (short) serializer.deserialize(serializer.serialize(s), short.class));
 
 		int i = random.nextInt();
-		assertEquals("Serialization - deserialization of integer failed", i, (int) serializer.deserialize(serializer.serialze(i), int.class));
+		assertEquals("Serialization - deserialization of integer failed", i, (int) serializer.deserialize(serializer.serialize(i), int.class));
 
 		long l = random.nextLong();
-		assertEquals("Serialization - deserialization of long failed", l, (long) serializer.deserialize(serializer.serialze(l), long.class));
+		assertEquals("Serialization - deserialization of long failed", l, (long) serializer.deserialize(serializer.serialize(l), long.class));
 
 		float f = random.nextFloat();
-		assertEquals("Serialization - deserialization of float failed", f, (float) serializer.deserialize(serializer.serialze(f), float.class), 0);
+		assertEquals("Serialization - deserialization of float failed", f, (float) serializer.deserialize(serializer.serialize(f), float.class), 0);
 
 		double d = random.nextDouble();
-		assertEquals("Serialization - deserialization of double failed", d, (double) serializer.deserialize(serializer.serialze(d), double.class), 0);
+		assertEquals("Serialization - deserialization of double failed", d, (double) serializer.deserialize(serializer.serialize(d), double.class), 0);
 
 		char c = (char) random.nextInt();
-		assertEquals("Serialization - deserialization of char failed", c, (char) serializer.deserialize(serializer.serialze(c), char.class));
+		assertEquals("Serialization - deserialization of char failed", c, (char) serializer.deserialize(serializer.serialize(c), char.class));
 	}
 
 }

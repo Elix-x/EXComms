@@ -125,7 +125,7 @@ public class BinaryPrimitiveSerializer<P> implements Serializer<Object, Primitiv
 
 		@Override
 		public ByteBuffer serialize(BinarySerializerMain serializerMain, Object o){
-			return serializerMain.serialze(new Primitive<>(o));
+			return serializerMain.serialize(new Primitive<>(o));
 		}
 
 		@Override
