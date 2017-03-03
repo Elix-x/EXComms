@@ -10,6 +10,7 @@ import org.junit.Test;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryPrimitiveSerializer;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryStringSerializer;
+import code.elix_x.excomms.serialization.generic.serializer.ClassAsStringSerializer;
 
 public class BinarySerializationTest {
 
@@ -58,6 +59,13 @@ public class BinarySerializationTest {
 		
 		String s2 = "This IS A load of gibberish text.\nMight as well throw some weird characters in.\nǢȌёΨ֍௵ᔵᜨ\n☭☯☢∞❄♫";
 		assertEquals("Serialization - deserialization of a very long gibberish string failed", s2, serializer.deserialize(serializer.serialize(s2), String.class));
+	}
+	
+	@Test
+	public void testClass(){
+		BinarySerializerMain serializer = new BinarySerializerMain(new BinaryStringSerializer(), new ClassAsStringSerializer<>());
+		
+		assertEquals("Serialization - deserialization of class failed", this.getClass(), serializer.deserialize(serializer.serialize(this.getClass()), Class.class));
 	}
 
 }
