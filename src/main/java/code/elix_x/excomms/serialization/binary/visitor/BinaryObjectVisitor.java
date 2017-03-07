@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.google.common.reflect.TypeToken;
+
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.excomms.serialization.DVisitor;
 import code.elix_x.excomms.serialization.SVisitor;
@@ -28,7 +30,7 @@ public class BinaryObjectVisitor<SpS extends ByteBuffer, SpD extends Object> imp
 	private Map<String, Integer> namePosMap;
 
 	@Override
-	public SpD startVisit(ByteBuffer buffer, Supplier<Class<SpD>> clas){
+	public SpD startVisit(ByteBuffer buffer, Supplier<TypeToken<SpD>> clas){
 		this.workBuffer = buffer;
 		this.namePosMap = new HashMap<>();
 		int size = workBuffer.getInt();
@@ -38,7 +40,7 @@ public class BinaryObjectVisitor<SpS extends ByteBuffer, SpD extends Object> imp
 			namePosMap.put(name, workBuffer.position());
 			workBuffer.position(workBuffer.position() + length);
 		}
-		return new AClass<>(clas.get()).getDeclaredConstructor().setAccessible(true).newInstance();
+		return new AClass<SpD>((Class<SpD>) clas.get().getRawType()).getDeclaredConstructor().setAccessible(true).newInstance();
 	}
 
 	@Override

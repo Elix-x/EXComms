@@ -41,7 +41,7 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 	@Override
 	public GenS serialize(SerM serializerMain, GenD o){
 		AClass<GenD> clas = new AClass<>((Class<GenD>) o.getClass());
-		SVisitor<GenD, GenS, GenS, SerM, String> visitor = serializerMain.visitorS(clas.get());
+		SVisitor<GenD, GenS, GenS, SerM, String> visitor = serializerMain.visitorS(TypeToken.of(clas.get()));
 		visitor.visit(serializerMain.serialize((GenD) clas.get()), CLASS);
 		for(AField<? super GenD, ?> field : clas.getFields()){
 			if(Collections.disjoint(blackModifiers, field.modifiers())){
@@ -53,8 +53,8 @@ public class ObjectSerializer<GenD, GenS, SerM extends SerializerMain<GenD, GenS
 
 	@Override
 	public GenD deserialize(SerM serializerMain, GenS o){
-		DVisitor<GenD, GenD, GenS, SerM, String> visitor = serializerMain.visitorD((Class<GenS>) o.getClass()); 
-		GenD genD = visitor.startVisit(o, () -> (Class<GenD>) serializerMain.deserialize(visitor.visit(CLASS), (Class<GenD>) Class.class));
+		DVisitor<GenD, GenD, GenS, SerM, String> visitor = serializerMain.visitorD(TypeToken.of((Class<GenS>) o.getClass())); 
+		GenD genD = visitor.startVisit(o, () -> TypeToken.of((Class<GenD>) serializerMain.deserialize(visitor.visit(CLASS), (Class<GenD>) Class.class)));
 		AClass<GenD> clas = new AClass<GenD>((Class<GenD>) genD.getClass());
 		for(AField<? super GenD, ?> field : clas.getFields()){
 			if(Collections.disjoint(blackModifiers, field.modifiers())){

@@ -25,7 +25,7 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 	@Override
 	public GenS serialize(SerM serializerMain, SpD o){
 		AClass<SpD> clas = new AClass<>((Class<SpD>) o.getClass());
-		SVisitor<Object, GenS, GenS, SerM, Void> visitor = serializerMain.visitorS(clas.get());
+		SVisitor<Object, GenS, GenS, SerM, Void> visitor = serializerMain.visitorS(TypeToken.of(clas.get()));
 		visitor.visit(serializerMain.serialize(clas.get()), null);
 		for(Object oo : o){
 			visitor.visit(serializerMain.serialize(oo), null);
@@ -35,8 +35,8 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 
 	@Override
 	public SpD deserialize(SerM serializerMain, GenS o){
-		DVisitor<Object, SpD, GenS, SerM, Void> visitor = serializerMain.visitorD((Class<GenS>) o.getClass());
-		SpD spD = visitor.startVisit(o, () -> (Class<SpD>) serializerMain.deserialize(visitor.visit(null), (Class<GenD>) Class.class));
+		DVisitor<Object, SpD, GenS, SerM, Void> visitor = serializerMain.visitorD(TypeToken.of((Class<GenS>) o.getClass()));
+		SpD spD = visitor.startVisit(o, () -> TypeToken.of((Class<SpD>) serializerMain.deserialize(visitor.visit(null), (Class<GenD>) Class.class)));
 		while(true){
 			try{
 				spD.add(visitor.visit(null));

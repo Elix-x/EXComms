@@ -15,9 +15,9 @@ public abstract class SerializerMain<GenD, GenS, SerM extends SerializerMain<Gen
 		this.serializers = ImmutableList.copyOf(serializers);
 	}
 
-	public abstract <SpS extends GenS, SpD extends GenD, Args> SVisitor<GenD, GenS, SpS, SerM, Args> visitorS(Class<SpD> clas);
+	public abstract <SpS extends GenS, SpD extends GenD, Args> SVisitor<GenD, GenS, SpS, SerM, Args> visitorS(TypeToken<SpD> clas);
 
-	public abstract <SpS extends GenS, SpD extends GenD, Args> DVisitor<GenD, SpD, GenS, SerM, Args> visitorD(Class<SpS> clas);
+	public abstract <SpS extends GenS, SpD extends GenD, Args> DVisitor<GenD, SpD, GenS, SerM, Args> visitorD(TypeToken<SpS> clas);
 
 	public <SpS extends GenS, SpD extends GenD> SpS serialize(GenD t){
 		for(Serializer serializer : serializers){
