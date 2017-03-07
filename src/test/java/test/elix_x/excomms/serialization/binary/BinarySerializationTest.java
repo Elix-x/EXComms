@@ -7,7 +7,10 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.google.common.reflect.TypeToken;
+
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
+import code.elix_x.excomms.serialization.binary.serializer.BinaryNullSerializer;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryPrimitiveSerializer;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryStringSerializer;
 import code.elix_x.excomms.serialization.generic.serializer.ClassAsStringSerializer;
@@ -60,6 +63,15 @@ public class BinarySerializationTest {
 
 		String s2 = "This IS A load of gibberish text.\nMight as well throw some weird characters in.\nǢȌёΨ֍௵ᔵᜨ\n☭☯☢∞❄♫";
 		assertEquals("Serialization - deserialization of a very long gibberish string failed", s2, serializer.deserialize(serializer.serialize(s2), String.class));
+	}
+	
+	@Test
+	public void testNull(){
+		BinarySerializerMain serializer = new BinarySerializerMain(new BinaryNullSerializer<>());
+		
+		ByteBuffer buffer = serializer.serialize(null);
+		assertTrue("Serialization of null gone wrong", buffer != null && buffer.limit() == 0);
+		assertNull("Deserialization of null failed", serializer.deserialize(buffer, (TypeToken) null));
 	}
 
 	@Test
