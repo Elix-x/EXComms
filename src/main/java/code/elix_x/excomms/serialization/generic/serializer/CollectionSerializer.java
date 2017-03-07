@@ -28,6 +28,7 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 		SVisitor<Object, GenS, GenS, SerM, Void> visitor = serializerMain.visitorS(TypeToken.of(clas.get()));
 		visitor.visit(serializerMain.serialize(clas.get()), null);
 		for(Object oo : o){
+			visitor.visit(serializerMain.serialize(oo.getClass()), null);
 			visitor.visit(serializerMain.serialize(oo), null);
 		}
 		return visitor.endVisit();
@@ -35,12 +36,13 @@ public class CollectionSerializer<GenD extends Object, SpD extends Collection, G
 
 	@Override
 	public SpD deserialize(SerM serializerMain, GenS o){
-		DVisitor<Object, SpD, GenS, SerM, Void> visitor = serializerMain.visitorD(TypeToken.of((Class<GenS>) o.getClass()));
+		DVisitor<Object, SpD, GenS, SerM, Void> visitor = serializerMain.visitorD(new TypeToken<SpD>(getClass()){});
 		SpD spD = visitor.startVisit(o, () -> TypeToken.of((Class<SpD>) serializerMain.deserialize(visitor.visit(null), (Class<GenD>) Class.class)));
 		while(true){
 			try{
-				spD.add(visitor.visit(null));
-			} catch(IllegalArgumentException e){
+				TypeToken type = TypeToken.of(serializerMain.deserialize(visitor.visit(null), Class.class));
+				spD.add(serializerMain.deserialize(visitor.visit(null), type));
+			} catch(RuntimeException e){
 				break;
 			}
 		}

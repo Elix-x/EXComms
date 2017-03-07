@@ -17,7 +17,7 @@ public abstract class SerializerMain<GenD, GenS, SerM extends SerializerMain<Gen
 
 	public abstract <SpS extends GenS, SpD extends GenD, Args> SVisitor<GenD, GenS, SpS, SerM, Args> visitorS(TypeToken<SpD> clas);
 
-	public abstract <SpS extends GenS, SpD extends GenD, Args> DVisitor<GenD, SpD, GenS, SerM, Args> visitorD(TypeToken<SpS> clas);
+	public abstract <SpS extends GenS, SpD extends GenD, Args> DVisitor<GenD, SpD, GenS, SerM, Args> visitorD(TypeToken<SpD> clas);
 
 	public <SpS extends GenS, SpD extends GenD> SpS serialize(GenD t){
 		for(Serializer serializer : serializers){

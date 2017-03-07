@@ -2,9 +2,10 @@ package code.elix_x.excomms.serialization.binary.visitor;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
 import java.util.function.Supplier;
 
 import com.google.common.reflect.TypeToken;
@@ -14,38 +15,31 @@ import code.elix_x.excomms.serialization.DVisitor;
 import code.elix_x.excomms.serialization.SVisitor;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 
-public class BinaryObjectVisitor<SpS extends ByteBuffer, SpD extends Object> implements SVisitor<Object, ByteBuffer, SpS, BinarySerializerMain, String>, DVisitor<Object, SpD, ByteBuffer, BinarySerializerMain, String> {
-
-	private final BinarySerializerMain main;
-
-	public BinaryObjectVisitor(BinarySerializerMain main){
-		this.main = main;
-	}
+public class BinaryCollectionVisitor<T, SpS extends ByteBuffer, SpD extends Collection<T>> implements SVisitor<Object, ByteBuffer, SpS, BinarySerializerMain, Void>, DVisitor<Object, SpD, ByteBuffer, BinarySerializerMain, Void> {
 
 	/*
 	 * Deserialization
 	 */
 
 	private ByteBuffer workBuffer;
-	private Map<String, Integer> namePosMap;
+	private Queue<Integer> posQueue;
 
 	@Override
 	public SpD startVisit(ByteBuffer buffer, Supplier<TypeToken<SpD>> clas){
 		this.workBuffer = buffer;
-		this.namePosMap = new HashMap<>();
+		this.posQueue = new LinkedList<>();
 		int size = workBuffer.getInt();
 		for(int i = 0; i < size; i++){
-			String name = main.deserialize(workBuffer, String.class);
 			int length = workBuffer.getInt();
-			namePosMap.put(name, workBuffer.position());
+			posQueue.add(workBuffer.position());
 			workBuffer.position(workBuffer.position() + length);
 		}
 		return new AClass<>((Class<SpD>) clas.get().getRawType()).getDeclaredConstructor().setAccessible(true).newInstance();
 	}
 
 	@Override
-	public ByteBuffer visit(String args){
-		workBuffer.position(namePosMap.get(args));
+	public ByteBuffer visit(Void args){
+		workBuffer.position(posQueue.remove());
 		return workBuffer;
 	}
 
@@ -56,17 +50,17 @@ public class BinaryObjectVisitor<SpS extends ByteBuffer, SpD extends Object> imp
 	private List<ByteBuffer> buffersList;
 
 	@Override
-	public void visit(ByteBuffer object, String args){
+	public void visit(ByteBuffer object, Void args){
 		if(buffersList == null) buffersList = new ArrayList<>();
-		ByteBuffer name = main.serialize(args);
-		buffersList.add((ByteBuffer) ByteBuffer.allocate(name.limit() + 4 + object.limit()).put(name).putInt(object.limit()).put(object).flip());
+		buffersList.add(object);
 	}
 
 	@Override
 	public SpS endVisit(){
-		ByteBuffer buffer = ByteBuffer.allocate(4 + buffersList.stream().mapToInt(buff -> buff.limit()).sum());
+		ByteBuffer buffer = ByteBuffer.allocate(4 + buffersList.stream().mapToInt(buff -> 4 + buff.limit()).sum());
 		buffer.putInt(buffersList.size());
 		for(ByteBuffer buff : buffersList){
+			buffer.putInt(buff.limit());
 			buffer.put(buff);
 		}
 		buffer.flip();

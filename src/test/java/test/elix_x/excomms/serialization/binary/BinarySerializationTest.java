@@ -3,17 +3,24 @@ package test.elix_x.excomms.serialization.binary;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Random;
-
+import java.util.Set;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 
+import code.elix_x.excomms.primitive.PrimitiveType;
 import code.elix_x.excomms.serialization.binary.BinarySerializerMain;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryNullSerializer;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryPrimitiveSerializer;
 import code.elix_x.excomms.serialization.binary.serializer.BinaryStringSerializer;
 import code.elix_x.excomms.serialization.generic.serializer.ClassAsStringSerializer;
+import code.elix_x.excomms.serialization.generic.serializer.CollectionSerializer;
 import code.elix_x.excomms.serialization.generic.serializer.ObjectSerializer;
 
 public class BinarySerializationTest {
@@ -64,14 +71,14 @@ public class BinarySerializationTest {
 		String s2 = "This IS A load of gibberish text.\nMight as well throw some weird characters in.\nǢȌёΨ֍௵ᔵᜨ\n☭☯☢∞❄♫";
 		assertEquals("Serialization - deserialization of a very long gibberish string failed", s2, serializer.deserialize(serializer.serialize(s2), String.class));
 	}
-	
+
 	@Test
 	public void testNull(){
 		BinarySerializerMain serializer = new BinarySerializerMain(new BinaryNullSerializer<>());
-		
+
 		ByteBuffer buffer = serializer.serialize(null);
 		assertTrue("Serialization of null gone wrong", buffer != null && buffer.limit() == 0);
-		assertNull("Deserialization of null failed", serializer.deserialize(buffer, (TypeToken) null));
+		assertNull("Deserialization of null failed", serializer.deserialize(buffer, TypeToken.of(Object.class)));
 	}
 
 	@Test
@@ -87,6 +94,26 @@ public class BinarySerializationTest {
 
 		SimpleObject object = new SimpleObject();
 		assertEquals("Serialization - deserialization of simple object failed", object, serializer.deserialize(serializer.serialize(object), SimpleObject.class));
+	}
+
+	@Test
+	public void testCollections(){
+		BinarySerializerMain serializer = new BinarySerializerMain(new BinaryPrimitiveSerializer<>(PrimitiveType.INT), new BinaryPrimitiveSerializer.ActualTypesWrapper<>(PrimitiveType.INT), new BinaryStringSerializer(), new ClassAsStringSerializer<>(), new CollectionSerializer<>());
+
+		List<Integer> list = Lists.newArrayList(5, 3, 1);
+		Object result = serializer.deserialize(serializer.serialize(list), new TypeToken<List<Integer>>(){});
+		assertEquals("Serialization - deserialization of list failed", list, result);
+		assertTrue("Serialization - deserialization of list messed the class up", list.getClass() == result.getClass());
+
+		Set<Integer> set = Sets.newHashSet(4, 0, 2);
+		result = serializer.deserialize(serializer.serialize(set), new TypeToken<Set<Integer>>(){});
+		assertEquals("Serialization - deserialization of set failed", set, result);
+		assertTrue("Serialization - deserialization of set messed the class up", set.getClass() == result.getClass());
+
+		Queue<Integer> queue = new LinkedList<Integer>();
+		result = serializer.deserialize(serializer.serialize(queue), new TypeToken<Queue<Integer>>(){});
+		assertEquals("Serialization - deserialization of queue failed", queue, result);
+		assertTrue("Serialization - deserialization of queue messed the class up", queue.getClass() == result.getClass());
 	}
 
 	public static class SimpleObject {
