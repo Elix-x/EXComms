@@ -2,3 +2,16 @@
 
 # EXComms
 Elix'x Common Library for Java 8+
+
+## Installation
+#### Gradle
+```gradle
+repositories {
+	maven { url "https://elix-x.github.io/maven2" }
+	mavenCentral()
+}
+
+dependencies {
+	compile "code.elix_x.excomms:EXComms:$excomms_version"
+}
+```
