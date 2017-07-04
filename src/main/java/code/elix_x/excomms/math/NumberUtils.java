@@ -138,14 +138,14 @@ public class NumberUtils {
 	public static <N extends Number> N min(Stream<N> numbers){
 		N number = numbers.findAny().get();
 		if(number instanceof Comparable) return (N) minComparable((Stream) numbers);
-		else return (N) fromBigDecimal(minComparable(numbers.map(n -> toBigDecimal(n))), number.getClass());
+		else return (N) fromBigDecimal(NumberUtils.<BigDecimal>minComparable(numbers.map(n -> toBigDecimal(n))), number.getClass());
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <N extends Number> N max(Stream<N> numbers){
 		N number = numbers.findAny().get();
 		if(number instanceof Comparable) return (N) maxComparable((Stream) numbers);
-		else return (N) fromBigDecimal(maxComparable(numbers.map(n -> toBigDecimal(n))), number.getClass());
+		else return (N) fromBigDecimal(NumberUtils.<BigDecimal>maxComparable(numbers.map(n -> toBigDecimal(n))), number.getClass());
 	}
 
 }

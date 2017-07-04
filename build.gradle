@@ -10,8 +10,8 @@ sourceCompatibility = java_version
 targetCompatibility = java_version
 
 dependencies {
-	compile "com.google.guava:guava:20.0"
-	compile "org.apache.commons:commons-lang3:3.5"
+	compile "com.google.guava:guava:22.0"
+	compile "org.apache.commons:commons-lang3:3.6"
 	testCompile "junit:junit:4.12"
 }
 

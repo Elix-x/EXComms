@@ -6,13 +6,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import com.google.common.collect.Lists;
 
@@ -148,38 +149,36 @@ public class ReflectionHelper {
 			}
 		}
 
-		public List<AConstructor<C>> getDeclaredConstructors(){
-			return Lists.transform(Arrays.asList(clas.getDeclaredConstructors()), constructor -> new AConstructor<>(this, (Constructor<C>) constructor));
+		public Stream<AConstructor<C>> getDeclaredConstructors(){
+			return Arrays.stream(clas.getDeclaredConstructors()).map(constructor -> new AConstructor<C>(this, (Constructor) constructor));
 		}
 
 		public <T> AField<C, T> getDeclaredField(String... names){
 			return new AField<C, T>(this, findField(clas, names));
 		}
 
-		public List<AField<C, ?>> getDeclaredFields(){
-			return Lists.transform(Arrays.asList(clas.getDeclaredFields()), field -> new AField<>(this, field));
+		public <T> Stream<AField<C, T>> getDeclaredFields(){
+			return Arrays.stream(clas.getDeclaredFields()).map(constructor -> new AField<C, T>(this, (Field) constructor));
 		}
 
-		public List<AField<? super C, ?>> getFields(){
-			List sup = new ArrayList<>();
-			getSuperclass().ifPresent(clas -> sup.addAll(clas.getFields()));
-			sup.addAll(getDeclaredFields());
-			return sup;
+		public <T> Stream<AField<? super C, T>> getFields(){
+			MutableObject<Stream> stream = new MutableObject<Stream>(getDeclaredFields());
+			getSuperclass().ifPresent(clas -> stream.setValue(Stream.concat(stream.getValue(), clas.getFields())));
+			return stream.getValue();
 		}
 
 		public <T> AMethod<C, T> getDeclaredMethod(String[] names, Class<?>... args){
 			return new AMethod<C, T>(this, findMethod(clas, names, args));
 		}
 
-		public List<AMethod<C, ?>> getDeclaredMethods(){
-			return Lists.transform(Arrays.asList(clas.getDeclaredMethods()), method -> new AMethod<>(this, method));
+		public <T> Stream<AMethod<C, T>> getDeclaredMethods(){
+			return Arrays.stream(clas.getDeclaredMethods()).map(constructor -> new AMethod<C, T>(this, (Method) constructor));
 		}
 
-		public List<AMethod<? super C, ?>> getMethods(){
-			List sup = new ArrayList<>();
-			getSuperclass().ifPresent(clas -> sup.addAll(clas.getMethods()));
-			sup.addAll(getDeclaredMethods());
-			return sup;
+		public <T> Stream<AMethod<? super C, T>> getMethods(){
+			MutableObject<Stream> stream = new MutableObject<Stream>(getDeclaredMethods());
+			getSuperclass().ifPresent(clas -> stream.setValue(Stream.concat(stream.getValue(), clas.getMethods())));
+			return stream.getValue();
 		}
 
 		public static class AInterface<C> extends AClass<C> {

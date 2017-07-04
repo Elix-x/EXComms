@@ -24,11 +24,7 @@ public class DataCopier {
 	@SuppressWarnings("unchecked")
 	public static <O, O1 extends O, V> O copy(O from, O1 to){
 		AClass<O> clas = new AClass(from.getClass());
-		for(AField<? super O, ?> field : clas.getFields()){
-			if(!field.is(Modifier.STATIC)){
-				field.setAccessible(true).setFinal(false).set(to, field.get(from));
-			}
-		}
+		clas.getFields().filter(field -> !field.is(Modifier.STATIC)).forEach(field -> field.setAccessible(true).setFinal(false).set(to, field.get(from)));
 		return to;
 	}
 
