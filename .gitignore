@@ -9,3 +9,8 @@ bin/
 .settings/
 eclipse/*
 !eclipse/codeformat.xml
+
+# IDEA
+.idea/
+out/
+*.iml
