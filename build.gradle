@@ -1,6 +1,16 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
+	}
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 repositories {
     mavenCentral()
@@ -10,9 +20,10 @@ sourceCompatibility = java_version
 targetCompatibility = java_version
 
 dependencies {
-	compile "com.google.guava:guava:22.0"
-	compile "org.apache.commons:commons-lang3:3.6"
-	testCompile "junit:junit:4.12"
+	compile "com.google.guava:guava:$guava_version"
+	compile "org.apache.commons:commons-lang3:$commons_lang3_version"
+	testCompile "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
 }
 
 archivesBaseName = 'EXComms'
