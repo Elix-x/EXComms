@@ -1,23 +1,16 @@
 package test.elix_x.excomms.tick;
 
-import static org.junit.Assert.*;
+import code.elix_x.excomms.tick.Ticker;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
-import org.junit.Rule;
-import org.junit.Test;
-
-import code.elix_x.excomms.tick.Ticker;
-import test.elix_x.excomms.Repeat;
-import test.elix_x.excomms.RepeatRule;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TickerTest {
 
-	@Rule
-	public RepeatRule repeat = new RepeatRule();
-
-	@Test
-	@Repeat(5)
+	@RepeatedTest(5)
 	public void testNormal(){
 		Random random = new Random();
 		int ticks = 50;
@@ -30,13 +23,12 @@ public class TickerTest {
 		}
 		long endTime = System.currentTimeMillis();
 		ticker.stop();
-		assertEquals("Ticker did not tick requested amount of ticks", ticks, ticker.getTickCount());
+		assertEquals(ticks, ticker.getTickCount(), "Ticker did not tick requested amount of ticks");
 		if(Math.abs((endTime - startTime) - ticks * ticker.getTickTime()) >= ticker.getTickTime())
-			assertEquals("Ticker did not tick precisely", ticks * ticker.getTickTime(), endTime - startTime);
+			assertEquals(ticks * ticker.getTickTime(), endTime - startTime, "Ticker did not tick precisely");
 	}
 
 	@Test
-	@Repeat(5)
 	public void testSpike(){
 		Random random = new Random();
 		int ticks = 50;
@@ -55,13 +47,12 @@ public class TickerTest {
 		}
 		long endTime = System.currentTimeMillis();
 		ticker.stop();
-		assertEquals("Ticker did not tick requested amount of ticks", ticks, ticker.getTickCount());
+		assertEquals(ticks, ticker.getTickCount(), "Ticker did not tick requested amount of ticks");
 		if(Math.abs((endTime - startTime) - ticks * ticker.getTickTime()) >= ticker.getTickTime())
-			assertEquals("Ticker did not tick precisely", ticks * ticker.getTickTime(), endTime - startTime);
+			assertEquals(ticks * ticker.getTickTime(), endTime - startTime, "Ticker did not tick precisely");
 	}
 
 	@Test
-	@Repeat(10)
 	public void testExtreme(){
 		Random random = new Random();
 		int ticks = 50;
@@ -74,9 +65,9 @@ public class TickerTest {
 		}
 		long endTime = System.currentTimeMillis();
 		ticker.stop();
-		assertEquals("Ticker did not tick requested amount of ticks", ticks, ticker.getTickCount());
+		assertEquals(ticks, ticker.getTickCount(), "Ticker did not tick requested amount of ticks");
 		if(Math.abs((endTime - startTime) - ticks * ticker.getTickTime()) > ticker.getTickTime() * 2)
-			assertEquals("Ticker did not tick precisely", ticks * ticker.getTickTime(), endTime - startTime);
+			assertEquals(ticks * ticker.getTickTime(), endTime - startTime, "Ticker did not tick precisely");
 	}
 
 }

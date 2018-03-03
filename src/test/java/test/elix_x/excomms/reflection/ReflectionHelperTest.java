@@ -1,15 +1,15 @@
 package test.elix_x.excomms.reflection;
 
-import static org.junit.Assert.*;
-
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
 
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass.AEnum;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass.AInterface;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReflectionHelperTest {
 
@@ -24,16 +24,16 @@ public class ReflectionHelperTest {
 		AClass<ReflectionHelperTest> clas = new AClass<>(ReflectionHelperTest.class);
 
 		clas.getDeclaredField("privateField").setAccessible(true).set(this, shouldBe);
-		assertEquals("Private replacement was not successful", shouldBe, privateField);
+		assertEquals(shouldBe, privateField, "Private replacement was not successful");
 
 		clas.getDeclaredField("privateFinalField").setAccessible(true).setFinal(false).set(this, shouldBe);
-		assertEquals("Private final replacement was not successful", shouldBe, privateFinalField);
+		assertEquals(shouldBe, privateFinalField, "Private final replacement was not successful");
 
 		clas.getDeclaredField("privateStaticFinalField").setAccessible(true).setFinal(false).set(null, shouldBe);
-		assertEquals("Private static final replacement was not successful", shouldBe, privateStaticFinalField);
+		assertEquals(shouldBe, privateStaticFinalField, "Private static final replacement was not successful");
 
 		clas.getDeclaredMethod(new String[]{"privateMethod"}).setAccessible(true).invoke(this);
-		assertTrue("Private method call was successful", called);
+		assertTrue(called, "Private method call was successful");
 	}
 
 	@SuppressWarnings("unused")

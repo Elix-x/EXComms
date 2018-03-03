@@ -1,16 +1,5 @@
 package test.elix_x.excomms.pipeline;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.text.StrBuilder;
-import org.junit.Test;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-
 import code.elix_x.excomms.pipeline.Pipeline;
 import code.elix_x.excomms.pipeline.PipelineElement;
 import code.elix_x.excomms.pipeline.SupplierPipelineElement;
@@ -18,7 +7,15 @@ import code.elix_x.excomms.pipeline.list.CollectorPipelineElement;
 import code.elix_x.excomms.pipeline.list.Junction;
 import code.elix_x.excomms.pipeline.list.ListPipelineElement;
 import code.elix_x.excomms.pipeline.list.ToListTransformersPipelineElement;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.text.StrBuilder;
+import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PipelineTest {
 
