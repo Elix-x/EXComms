@@ -1,108 +1,157 @@
 package code.elix_x.excomms.color;
 
-public class HSBA implements Color {
+import java.util.Objects;
 
-	public float hue;
-	public float saturation;
-	public float brightness;
-	public float alpha;
+/**
+ * Immutable HSBA color-space independent color representation.
+ *
+ * @author Elix_x
+ */
+public final class HSBA {
 
-	private HSBA(){
+	private final float h, s, b, a;
 
+	public HSBA(float h, float s, float b, float a){
+		float mh = h % 1;
+		this.h = mh > 0 ? mh : 1 + mh;
+		this.s = Math.min(Math.max(s, 0), 1);
+		this.b = Math.min(Math.max(b, 0), 1);
+		this.a = Math.min(Math.max(a, 0), 1);
 	}
 
-	public HSBA(float hue, float saturation, float brightness, float alpha){
-		this.hue = hue;
-		this.saturation = saturation;
-		this.brightness = brightness;
-		this.alpha = alpha;
+	public HSBA(float h, float s, float b){
+		this(h, s, b, 1f);
 	}
 
-	public HSBA(float hue, float saturation, float brightness){
-		this(hue, saturation, brightness, 1);
+	public HSBA(){
+		this(0, 0, 0);
 	}
 
-	@Override
+	/*
+	 * Get-set
+	 */
+
+	public float getH(){
+		return h;
+	}
+
+	public double getHRad(){
+		return h * 2 * Math.PI;
+	}
+
+	public double getHDeg(){
+		return h * 360;
+	}
+
+	public float getS(){
+		return s;
+	}
+
+	public float getB(){
+		return b;
+	}
+
+	public float getA(){
+		return a;
+	}
+
+	public HSBA setH(float h){
+		return new HSBA(h, s, b, a);
+	}
+
+	public HSBA setHRad(double rad){
+		return setH((float) (rad / (2 * Math.PI)));
+	}
+
+	public HSBA setHDeg(double deg){
+		return setH((float) (deg / 360));
+	}
+
+	public HSBA setS(float s){
+		return new HSBA(h, s, b, a);
+	}
+
+	public HSBA setB(float b){
+		return new HSBA(h, s, b, a);
+	}
+
+	public HSBA setA(float a){
+		return new HSBA(h, s, b, a);
+	}
+
+	/*
+	 * Other color defs
+	 */
+
 	public RGBA toRGBA(){
-		int red = 0;
-		int green = 0;
-		int blue = 0;
-		if(saturation == 0.0F){
-			red = green = blue = (byte) (brightness * 255F + 0.5F);
-		} else{
-			float f3 = (hue - (float) Math.floor(hue)) * 6F;
-			float f4 = f3 - (float) Math.floor(f3);
-			float f5 = brightness * (1.0F - saturation);
-			float f6 = brightness * (1.0F - saturation * f4);
-			float f7 = brightness * (1.0F - saturation * (1.0F - f4));
-			switch((int) f3){
-				case 0:
-					red = (byte) (brightness * 255F + 0.5F);
-					green = (byte) (f7 * 255F + 0.5F);
-					blue = (byte) (f5 * 255F + 0.5F);
-					break;
-				case 1:
-					red = (byte) (f6 * 255F + 0.5F);
-					green = (byte) (brightness * 255F + 0.5F);
-					blue = (byte) (f5 * 255F + 0.5F);
-					break;
-				case 2:
-					red = (byte) (f5 * 255F + 0.5F);
-					green = (byte) (brightness * 255F + 0.5F);
-					blue = (byte) (f7 * 255F + 0.5F);
-					break;
-				case 3:
-					red = (byte) (f5 * 255F + 0.5F);
-					green = (byte) (f6 * 255F + 0.5F);
-					blue = (byte) (brightness * 255F + 0.5F);
-					break;
-				case 4:
-					red = (byte) (f7 * 255F + 0.5F);
-					green = (byte) (f5 * 255F + 0.5F);
-					blue = (byte) (brightness * 255F + 0.5F);
-					break;
-				case 5:
-					red = (byte) (brightness * 255F + 0.5F);
-					green = (byte) (f5 * 255F + 0.5F);
-					blue = (byte) (f6 * 255F + 0.5F);
-					break;
+		float r, g, b;
+		if(s == 0) r = g = b = this.b;
+		else {
+			float h6 = this.h * 6;
+			if(h6 == 6) h6 = 0; // H must be < 1
+			int hi = (int) Math.floor((double) h6); // Or ... hi =
+			float c1 = this.b * (1 - s);
+			float c2 = this.b * (1 - s * (h6 - hi));
+			float c3 = this.b * (1 - s * (1 - (h6 - hi)));
+
+			if(hi == 0){
+				r = this.b;
+				g = c3;
+				b = c1;
+			} else if(hi == 1){
+				r = c2;
+				g = this.b;
+				b = c1;
+			} else if(hi == 2){
+				r = c1;
+				g = this.b;
+				b = c3;
+			} else if(hi == 3){
+				r = c1;
+				g = c2;
+				b = this.b;
+			} else if(hi == 4){
+				r = c3;
+				g = c1;
+				b = this.b;
+			} else {
+				r = this.b;
+				g = c1;
+				b = c2;
 			}
 		}
-		return new RGBA(red, green, blue, (int) (alpha * 255f));
+		return new RGBA(r, g, b, a);
+	}
+
+	/*
+	 * EH2S
+	 */
+
+	public static final float DEFAULTEQUALSDELTA = 1E-5F;
+
+	private static boolean deltaEquals(float a, float b, float delta){
+		return Math.abs(a - b) < DEFAULTEQUALSDELTA;
+	}
+
+	public boolean equals(HSBA hsba, float delta){
+		return deltaEquals(hsba.h, h, delta) && deltaEquals(hsba.s, s, delta) && deltaEquals(hsba.b, b, delta) && deltaEquals(hsba.a, a, delta);
 	}
 
 	@Override
-	public HSBA toHSBA(){
-		return this;
+	public boolean equals(Object o){
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+		return equals((HSBA) o, DEFAULTEQUALSDELTA);
 	}
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(alpha);
-		result = prime * result + Float.floatToIntBits(brightness);
-		result = prime * result + Float.floatToIntBits(hue);
-		result = prime * result + Float.floatToIntBits(saturation);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj) return true;
-		if(obj == null) return false;
-		if(getClass() != obj.getClass()) return false;
-		HSBA other = (HSBA) obj;
-		if(Float.floatToIntBits(alpha) != Float.floatToIntBits(other.alpha)) return false;
-		if(Float.floatToIntBits(brightness) != Float.floatToIntBits(other.brightness)) return false;
-		if(Float.floatToIntBits(hue) != Float.floatToIntBits(other.hue)) return false;
-		if(Float.floatToIntBits(saturation) != Float.floatToIntBits(other.saturation)) return false;
-		return true;
+		return Objects.hash(h, s, b, a);
 	}
 
 	@Override
 	public String toString(){
-		return "HSBA [hue=" + hue + ", saturation=" + saturation + ", brightness=" + brightness + ", alpha=" + alpha + "]";
+		return "HSBA{" + h + ", " + s + ", " + b + ", " + a + '}';
 	}
 
 }
