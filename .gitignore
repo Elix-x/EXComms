@@ -8,7 +8,6 @@ bin/
 .classpath
 .settings/
 eclipse/*
-!eclipse/codeformat.xml
 
 # IDEA
 .idea/
