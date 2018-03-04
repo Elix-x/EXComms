@@ -26,6 +26,10 @@ dependencies {
 	testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
 }
 
+junitPlatform {
+	details 'tree'
+}
+
 archivesBaseName = 'EXComms'
 version = "${version_major}.${version_minor}.${version_patch}"
 if(version_channel != 'release') version += "-$version_channel"
@@ -69,6 +73,7 @@ task sourcesJar(type: Jar){
     from sourceSets.main.allJava
 }
 
+javadoc.failOnError = false
 task javadocJar(type: Jar, dependsOn: 'javadoc'){
 	classifier = "javadoc"
 	from "$buildDir/docs/javadoc"
