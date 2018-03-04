@@ -39,7 +39,7 @@ public class NumberUtils {
 	 */
 	public static <N extends Number> N fromBigDecimal(BigDecimal number, Class<N> n){
 		if(n == BigDecimal.class) return (N) number;
-		return new AClass<N>(n).getDeclaredConstructor(String.class).newInstance(number.toString());
+		return new AClass<N>(n).getDeclaredConstructor(String.class).orElseThrow(IllegalArgumentException::new).newInstance(number.toString()).orElseThrow(IllegalArgumentException::new);
 	}
 
 	public static byte min(byte... ints){

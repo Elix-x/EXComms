@@ -1,21 +1,18 @@
 package code.elix_x.excomms.reflection;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import code.elix_x.excomms.optional.NullableOptional;
+import com.google.common.primitives.Primitives;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
+
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
-
-import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 public class ReflectionHelper {
@@ -33,50 +30,67 @@ public class ReflectionHelper {
 			fieldMethodModifiers = Method.class.getDeclaredField("modifiers");
 			fieldMethodModifiers.setAccessible(true);
 		} catch(Exception e){
-			throw new RuntimeException(e);
+			throw new IllegalArgumentException("Could not initialize reflection framework - required internals not found!");
 		}
 	}
 
-	public static Field findField(Class<?> claz, String... names){
-		Exception e = null;
+	public static Optional<Field> findField(Class<?> claz, String... names){
 		Class<?> clas = claz;
 		while(claz != null){
-			for(String name : names){
-				try{
-					return clas.getDeclaredField(name);
-				} catch(Exception ee){
-					e = ee;
-				}
-			}
+			for(String name : names) try{
+				return Optional.of(clas.getDeclaredField(name));
+			} catch(Exception ee){}
 			clas = claz.getSuperclass();
 		}
-		throw new IllegalArgumentException(e);
+		return Optional.empty();
 	}
 
-	public static Method findMethod(Class<?> claz, String[] names, Class<?>... args){
-		Exception e = null;
+	public static Optional<Method> findMethod(Class<?> claz, String[] names, Class<?>... args){
 		Class<?> clas = claz;
 		while(claz != null){
-			for(String name : names){
-				try{
-					return clas.getDeclaredMethod(name, args);
-				} catch(Exception ee){
-					e = ee;
-				}
-			}
+			for(String name : names) try{
+				return Optional.of(clas.getDeclaredMethod(name, args));
+			} catch(Exception ee){}
 			clas = claz.getSuperclass();
 		}
-		throw new IllegalArgumentException(e);
+		return Optional.empty();
 	}
 
-	public static enum Modifier {
+	public static Class<?> wrapIfPrimitive(Class<?> c){
+		return c.isPrimitive() ? Primitives.wrap(c) : c;
+	}
+
+	public static boolean canArgApply(Class<?> param, Class<?> arg){
+		return arg == null ? !param.isPrimitive() : wrapIfPrimitive(param).isAssignableFrom(wrapIfPrimitive(arg));
+	}
+
+	public static boolean canArgApply(Class<?> param, Object arg){
+		return arg == null ? !param.isPrimitive() : wrapIfPrimitive(param).isInstance(arg);
+	}
+
+	public static boolean allArgsApplicable(Class[] params, Class[] args){
+		if(params.length != args.length) return false;
+		for(int a = 0; a < params.length; a++) if(!canArgApply(params[a], args[a])) return false;
+		return true;
+	}
+
+	public static boolean allArgsApplicable(Class[] params, Object[] args){
+		if(params.length != args.length) return false;
+		for(int a = 0; a < params.length; a++) if(!canArgApply(params[a], args[a])) return false;
+		return true;
+	}
+
+	private static final Supplier<IllegalArgumentException> MODIFIERSEXC = () -> new IllegalArgumentException("Could not initialize modifiers manipulation framework - required internals not found!");
+	private static final Supplier<IllegalArgumentException> ENUMEXC = () -> new IllegalArgumentException("Could not initialize enum manipulation framework - required internals not found!");
+
+	public enum Modifier {
 
 		PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, SYNCHRONIZED, VOLATILE, TRANSIENT, NATIVE, INTERFACE, ABSTRACT, STRICT, BRIDGE, VARARGS, SYNTHETIC, ANNOTATION, ENUM, MANDATED;
 
 		final int modifier;
 
-		private Modifier(){
-			modifier = new AClass<java.lang.reflect.Modifier>(java.lang.reflect.Modifier.class).<Integer> getDeclaredField(this.name()).setAccessible(true).get(null);
+		Modifier(){
+			modifier = new AClass<>(java.lang.reflect.Modifier.class).<Integer>getDeclaredField(this.name()).orElseThrow(MODIFIERSEXC).setAccessible(true).get(null).orElseThrow(MODIFIERSEXC);
 		}
 
 		private boolean is(int original){
@@ -84,16 +98,20 @@ public class ReflectionHelper {
 		}
 
 		private int set(int original, boolean on){
-			if(on){
-				return original | modifier;
-			} else{
-				return original & (~modifier);
-			}
+			if(on) return original | modifier;
+			else return original & (~modifier);
 		}
 
 	}
 
 	public static class AClass<C> {
+
+		public static <C> Optional<AClass<C>> find(String... names){
+			for(String name : names) try {
+				return (Optional) Optional.of(Class.forName(name)).map(AClass::new);
+			} catch(ClassNotFoundException e){}
+			return Optional.empty();
+		}
 
 		protected final Class<C> clas;
 
@@ -101,20 +119,12 @@ public class ReflectionHelper {
 			this.clas = clas;
 		}
 
-		public AClass(String clas){
-			try{
-				this.clas = (Class<C>) Class.forName(clas);
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
-		}
-
 		public Class<C> get(){
 			return clas;
 		}
 
 		public Optional<AClass<? super C>> getSuperclass(){
-			return clas.getSuperclass() != null ? Optional.of(new AClass<>(clas.getSuperclass())) : Optional.empty();
+			return Optional.ofNullable(clas.getSuperclass()).map(AClass::new);
 		}
 
 		public boolean isInterface(){
@@ -130,7 +140,7 @@ public class ReflectionHelper {
 		}
 
 		public <E extends Enum<E>> AEnum<E> asEnum(){
-			return new AEnum<E>((Class<E>) clas);
+			return new AEnum<>((Class<E>) clas);
 		}
 
 		public boolean isAnnotation(){
@@ -141,24 +151,31 @@ public class ReflectionHelper {
 			return new AAnnotation<>(clas);
 		}
 
-		public AConstructor<C> getDeclaredConstructor(Class<?>... args){
+		public Optional<AConstructor<C>> getDeclaredConstructor(Class<?>... args){
 			try{
-				return new AConstructor<C>(this, clas.getDeclaredConstructor(args));
-			} catch(ReflectiveOperationException e){
-				throw new RuntimeException(e);
-			}
+				return Optional.of(new AConstructor<C>(this, clas.getDeclaredConstructor(args)));
+			} catch(ReflectiveOperationException e){}
+			return Optional.empty();
 		}
 
 		public Stream<AConstructor<C>> getDeclaredConstructors(){
 			return Arrays.stream(clas.getDeclaredConstructors()).map(constructor -> new AConstructor<C>(this, (Constructor) constructor));
 		}
 
-		public <T> AField<C, T> getDeclaredField(String... names){
-			return new AField<C, T>(this, findField(clas, names));
+		public Stream<AConstructor<C>> findConstructorsForArgs(Class<?>... args){
+			return getDeclaredConstructors().filter(ac -> allArgsApplicable(ac.get().getParameterTypes(), args));
+		}
+
+		public Stream<AConstructor<C>> findConstructorsForArgs(Object... args){
+			return getDeclaredConstructors().filter(ac -> allArgsApplicable(ac.get().getParameterTypes(), args));
+		}
+
+		public <T> Optional<AField<C, T>> getDeclaredField(String... names){
+			return findField(clas, names).map(f -> new AField<C, T>(this, f));
 		}
 
 		public <T> Stream<AField<C, T>> getDeclaredFields(){
-			return Arrays.stream(clas.getDeclaredFields()).map(constructor -> new AField<C, T>(this, (Field) constructor));
+			return Arrays.stream(clas.getDeclaredFields()).map(f -> new AField<C, T>(this, f));
 		}
 
 		public <T> Stream<AField<? super C, T>> getFields(){
@@ -167,18 +184,30 @@ public class ReflectionHelper {
 			return stream.getValue();
 		}
 
-		public <T> AMethod<C, T> getDeclaredMethod(String[] names, Class<?>... args){
-			return new AMethod<C, T>(this, findMethod(clas, names, args));
+		public <T> Optional<AMethod<C, T>> getDeclaredMethod(String[] names, Class<?>... args){
+			return findMethod(clas, names, args).map(m -> new AMethod<C, T>(this, m));
 		}
 
 		public <T> Stream<AMethod<C, T>> getDeclaredMethods(){
-			return Arrays.stream(clas.getDeclaredMethods()).map(constructor -> new AMethod<C, T>(this, (Method) constructor));
+			return Arrays.stream(clas.getDeclaredMethods()).map(m -> new AMethod<C, T>(this, m));
+		}
+
+		public <T> Stream<AMethod<C, T>> findDeclaredMethodsForArgs(Class<?>... args){
+			return this.<T>getDeclaredMethods().filter(am -> allArgsApplicable(am.get().getParameterTypes(), args));
+		}
+
+		public <T> Stream<AMethod<C, T>> findDeclaredMethodsForArgs(Object... args){
+			return this.<T>getDeclaredMethods().filter(am -> allArgsApplicable(am.get().getParameterTypes(), args));
 		}
 
 		public <T> Stream<AMethod<? super C, T>> getMethods(){
 			MutableObject<Stream> stream = new MutableObject<Stream>(getDeclaredMethods());
 			getSuperclass().ifPresent(clas -> stream.setValue(Stream.concat(stream.getValue(), clas.getMethods())));
 			return stream.getValue();
+		}
+
+		public <T> Stream<AMethod<? super C, T>> findMethodsForArgs(Object... args){
+			return this.<T>getMethods().filter(am -> allArgsApplicable(am.get().getParameterTypes(), args));
 		}
 
 		public static class AInterface<C> extends AClass<C> {
@@ -192,27 +221,26 @@ public class ReflectionHelper {
 			}
 
 			public C proxy(ClassLoader loader, InvocationHandler handler, AInterface<?>... interfaces){
-				return (C) Proxy.newProxyInstance(loader, Arrays.stream(ArrayUtils.add(interfaces, 0, this)).map(iface -> iface.clas).collect(Collectors.toList()).toArray(new Class<?>[0]), handler);
+				return (C) Proxy.newProxyInstance(loader, Stream.concat(Stream.of(this), Arrays.stream(interfaces)).map(iface -> iface.clas).toArray(Class[]::new), handler);
 			}
 
 		}
 
 		public static class AEnum<C extends Enum<C>> extends AClass<C> {
 
-			private static final AClass<?> reflectionFactory = new AClass<>("sun.reflect.ReflectionFactory");
-			private static final AMethod getReflectionFactory = reflectionFactory.getDeclaredMethod(new String[]{"getReflectionFactory"}).setAccessible(true);
-			private static final AMethod newConstructorAccessor = reflectionFactory.getDeclaredMethod(new String[]{"newConstructorAccessor"}, Constructor.class).setAccessible(true);
-			private static final AClass<?> constructorAccessor = new AClass<>("sun.reflect.ConstructorAccessor");
-			private static final AMethod newInstance = constructorAccessor.getDeclaredMethod(new String[]{"newInstance"}, Object[].class).setAccessible(true);
+			private static final AClass<?> reflectionFactory = AClass.find("sun.reflect.ReflectionFactory").orElseThrow(ENUMEXC);
+			private static final AMethod<?, ?> getReflectionFactory = reflectionFactory.getDeclaredMethod(new String[]{"getReflectionFactory"}).orElseThrow(ENUMEXC).setAccessible(true);
+			private static final AMethod newConstructorAccessor = reflectionFactory.getDeclaredMethod(new String[]{"newConstructorAccessor"}, Constructor.class).orElseThrow(ENUMEXC).setAccessible(true);
+			private static final AClass<?> constructorAccessor = AClass.find("sun.reflect.ConstructorAccessor").orElseThrow(ENUMEXC);
+			private static final AMethod newInstance = constructorAccessor.getDeclaredMethod(new String[]{"newInstance"}, Object[].class).orElseThrow(ENUMEXC).setAccessible(true);
 
 			private final AField<C, C[]> VALUES;
 			private final Object factory;
 
 			private AEnum(Class<C> clas){
 				super(clas);
-				VALUES = getDeclaredField("$VALUES", "ENUM$VALUES");
-				VALUES.setAccessible(true).setFinal(false);
-				factory = getReflectionFactory.invoke(null);
+				VALUES = this.<C[]>getDeclaredField("$VALUES", "ENUM$VALUES").orElseThrow(() -> new IllegalArgumentException(String.format("Could not initialize enum (%s) reflector - VALUES[] not found!", clas.getName()))).setAccessible(true).setFinal(false);
+				factory = getReflectionFactory.invoke(null).orElseThrow(() -> new IllegalArgumentException(String.format("Could not initialize enum (%s) reflector - could not get ReflectionFactory!", clas.getName())));
 			}
 
 			public C[] enums(){
@@ -227,21 +255,45 @@ public class ReflectionHelper {
 				return Enum.valueOf(clas, name);
 			}
 
-			public C createEnum(String name, Object... params){
-				params = ArrayUtils.addAll(new Object[]{name, enums().length}, params);
-				Class[] paramc = Arrays.stream(params).map(param -> param.getClass()).collect(Collectors.toList()).toArray(new Class[0]);
-				paramc[1] = int.class;
-				return (C) newInstance.invoke(newConstructorAccessor.invoke(factory, getDeclaredConstructor(paramc).get()), (Object) params);
+			public Optional<EnumCreator> findEnumCreatorForArgs(Class<?>... args){
+				return findConstructorsForArgs(ArrayUtils.addAll(new Class[]{String.class, int.class}, args)).findAny().map(EnumCreator::new);
 			}
 
-			public C addEnum(String name, Object... params){
-				C c = createEnum(name, params);
-				VALUES.set(null, ArrayUtils.add(clas.getEnumConstants(), c));
-				return c;
+			public Optional<EnumCreator> findEnumCreatorForArgs(Object... args){
+				return findConstructorsForArgs(ArrayUtils.addAll(new Object[]{"", 0}, args)).findAny().map(EnumCreator::new);
+			}
+
+			public Optional<C> createEnum(String name, Object... args){
+				return findEnumCreatorForArgs(args).flatMap(creator -> creator.create(name, args));
+			}
+
+			public Optional<C> addEnum(String name, Object... args){
+				return findEnumCreatorForArgs(args).flatMap(creator -> creator.add(name, args));
 			}
 
 			public void removeEnum(C c){
 				VALUES.set(null, ArrayUtils.removeElement(enums(), c));
+			}
+
+			public class EnumCreator {
+
+				private final AConstructor<C> constructor;
+
+				private EnumCreator(AConstructor<C> constructor){
+					this.constructor = constructor;
+				}
+
+				public Optional<C> create(String name, Object... args){
+					return newConstructorAccessor.invoke(factory, constructor.get()).orElseOpt(Optional.empty()).flatMap(ca -> newInstance.invoke(ca, (Object) ArrayUtils.addAll(new Object[]{name, enums().length}, args)).orElseOpt(Optional.empty()));
+				}
+
+				public Optional<C> add(String name, Object... args){
+					return create(name, args).map(c -> {
+						VALUES.set(null, ArrayUtils.add(clas.getEnumConstants(), c));
+						return c;
+					});
+				}
+
 			}
 
 		}
@@ -275,7 +327,7 @@ public class ReflectionHelper {
 		}
 
 		public List<Modifier> modifiers(){
-			return Lists.newArrayList(Modifier.values()).stream().filter(modifier -> is(modifier)).collect(Collectors.toList());
+			return Arrays.stream(Modifier.values()).filter(this::is).collect(Collectors.toList());
 		}
 
 		public abstract boolean is(Modifier modifier);
@@ -284,26 +336,16 @@ public class ReflectionHelper {
 
 	}
 
-	private static interface IAccessibleReflectionObject<C, T, R extends ReflectionObject<C, T, R> & IAccessibleReflectionObject<C, T, R>> {
-
-		public abstract boolean isAccessible();
-
-		public abstract R setAccessible(boolean accessible);
-
-	}
-
-	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> implements IAccessibleReflectionObject<C, T, R> {
+	private static abstract class AccessibleReflectionObject<C, T extends AccessibleObject, R extends AccessibleReflectionObject<C, T, R>> extends ReflectionObject<C, T, R> {
 
 		private AccessibleReflectionObject(AClass<C> clas, T t){
 			super(clas, t);
 		}
 
-		@Override
 		public boolean isAccessible(){
 			return get().isAccessible();
 		}
 
-		@Override
 		public R setAccessible(boolean accessible){
 			get().setAccessible(accessible);
 			return (R) this;
@@ -332,12 +374,11 @@ public class ReflectionHelper {
 			return this;
 		}
 
-		public C newInstance(Object... args){
+		public Optional<C> newInstance(Object... args){
 			try{
-				return get().newInstance(args);
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
+				return Optional.of(get().newInstance(args));
+			} catch(Exception e){}
+			return Optional.empty();
 		}
 
 	}
@@ -367,20 +408,35 @@ public class ReflectionHelper {
 			return set(Modifier.FINAL, finall);
 		}
 
-		public <I extends C> T get(I instance){
+		public <I extends C> NullableOptional<T> get(I instance){
 			try{
-				return (T) get().get(instance);
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
+				return NullableOptional.of((T) get().get(instance));
+			} catch(Exception e){}
+			return NullableOptional.empty();
 		}
 
-		public <I extends C> void set(I instance, Object t){
+		public <I extends C> boolean set(I instance, Object t){
 			try{
 				get().set(instance, t);
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
+				return true;
+			} catch(Exception e){}
+			return false;
+		}
+
+		public <I extends C> Mutable<T> asMutable(I instance){
+			return new Mutable<T>() {
+
+				@Override
+				public T getValue(){
+					return get(instance).orElseThrow(() -> new IllegalArgumentException(String.format("Could not get field (%s) value!", get())));
+				}
+
+				@Override
+				public void setValue(T value){
+					if(!set(instance, value)) throw new IllegalArgumentException(String.format("Could not set field (%s) value (to %s)!", get(), value));
+				}
+
+			};
 		}
 
 	}
@@ -406,12 +462,11 @@ public class ReflectionHelper {
 			return this;
 		}
 
-		public <I extends C> T invoke(I instance, Object... args){
+		public <I extends C> NullableOptional<T> invoke(I instance, Object... args){
 			try{
-				return (T) get().invoke(instance, args);
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
+				return NullableOptional.of((T) get().invoke(instance, args));
+			} catch(Exception e){}
+			return NullableOptional.empty();
 		}
 
 	}

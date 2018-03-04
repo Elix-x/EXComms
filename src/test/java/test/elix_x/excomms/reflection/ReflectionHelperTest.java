@@ -23,16 +23,16 @@ public class ReflectionHelperTest {
 		String shouldBe = "This should!";
 		AClass<ReflectionHelperTest> clas = new AClass<>(ReflectionHelperTest.class);
 
-		clas.getDeclaredField("privateField").setAccessible(true).set(this, shouldBe);
+		clas.getDeclaredField("privateField").orElseThrow(IllegalArgumentException::new).setAccessible(true).set(this, shouldBe);
 		assertEquals(shouldBe, privateField, "Private replacement was not successful");
 
-		clas.getDeclaredField("privateFinalField").setAccessible(true).setFinal(false).set(this, shouldBe);
+		clas.getDeclaredField("privateFinalField").orElseThrow(IllegalArgumentException::new).setAccessible(true).setFinal(false).set(this, shouldBe);
 		assertEquals(shouldBe, privateFinalField, "Private final replacement was not successful");
 
-		clas.getDeclaredField("privateStaticFinalField").setAccessible(true).setFinal(false).set(null, shouldBe);
+		clas.getDeclaredField("privateStaticFinalField").orElseThrow(IllegalArgumentException::new).setAccessible(true).setFinal(false).set(null, shouldBe);
 		assertEquals(shouldBe, privateStaticFinalField, "Private static final replacement was not successful");
 
-		clas.getDeclaredMethod(new String[]{"privateMethod"}).setAccessible(true).invoke(this);
+		clas.getDeclaredMethod(new String[]{"privateMethod"}).orElseThrow(IllegalArgumentException::new).setAccessible(true).invoke(this);
 		assertTrue(called, "Private method call was successful");
 	}
 
@@ -44,11 +44,11 @@ public class ReflectionHelperTest {
 	@Test
 	public void testEnums(){
 		AEnum<Animal> clas = new AClass<>(Animal.class).asEnum();
-		Animal BUG = clas.createEnum("BUG");
+		Animal BUG = clas.createEnum("BUG").orElse(null);
 		assertTrue(BUG.getClass() == Animal.class);
 		assertFalse(ArrayUtils.contains(Animal.values(), BUG));
 		AEnum<Insect> insect = new AClass<>(Insect.class).asEnum();
-		Insect IBUG = insect.addEnum("IBUG", BUG);
+		Insect IBUG = insect.addEnum("IBUG", BUG).orElse(null);
 		assertTrue(IBUG.getClass() == Insect.class);
 		assertTrue(ArrayUtils.contains(Insect.values(), IBUG));
 		Insect ANT = Insect.ANT;
@@ -59,7 +59,7 @@ public class ReflectionHelperTest {
 
 	enum Animal {
 
-		DOG, CAT;
+		DOG, CAT
 
 	}
 
@@ -69,7 +69,7 @@ public class ReflectionHelperTest {
 
 		final Animal predator;
 
-		private Insect(Animal predator){
+		Insect(Animal predator){
 			this.predator = predator;
 		}
 
@@ -77,7 +77,7 @@ public class ReflectionHelperTest {
 
 	@Test
 	public void testInterfaces(){
-		AInterface<Plant> iface = new AClass<Plant>(Plant.class).asInterface();
+		AInterface<Plant> iface = new AClass<>(Plant.class).asInterface();
 		Plant bamboo = iface.proxy((Object proxy, Method method, Object[] args) -> {
 			return (boolean) args[0] ? 5 : 1;
 		});
@@ -91,7 +91,7 @@ public class ReflectionHelperTest {
 				default:
 					return null;
 			}
-		}, new AClass<Food>(Food.class).asInterface());
+		}, new AClass<>(Food.class).asInterface());
 		assertEquals(bamboo.getGrowthRate(true), 5);
 		assertEquals(bamboo.getGrowthRate(false), 1);
 		assertEquals(poisonBerries.getGrowthRate(true), 2);
