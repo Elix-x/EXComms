@@ -257,7 +257,7 @@ public final class NullableOptional<T> {
 	 */
 	@Override
 	public String toString(){
-		return value != null ? String.format("Optional[%s]", get()) : "Optional.empty";
+		return value != null ? String.format("NullableOptional[%s]", get()) : "NullableOptional.empty";
 	}
 
 }
