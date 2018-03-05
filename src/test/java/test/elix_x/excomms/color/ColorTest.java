@@ -17,9 +17,9 @@ public class ColorTest {
 		RGBA rgbaf = new RGBA(0.5f, 0.5f, 1f, 0.75f);
 		rgbaf = rgbaf.setGF(0.6371f);
 		assertEquals(0.6371f, rgbaf.getGF(), "Set F failed");
-		rgbaf.setRF(0.6f);
+		rgbaf = rgbaf.setRF(0.6f);
 		assertEquals(153, rgbaf.getRI(), "Get I failed");
-		rgbaf.setAI(204);
+		rgbaf = rgbaf.setAI(204);
 		assertEquals(0.8f, rgbaf.getAF(), "Set I failed");
 
 		assertEquals(new RGBA(0f, 0.4f, 0.8f, 1f), new RGBA(-2, 102, 204, 279), "Int capping failed");
