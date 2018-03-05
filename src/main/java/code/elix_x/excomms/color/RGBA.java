@@ -26,8 +26,12 @@ public final class RGBA {
 		this(0f, 0f, 0f);
 	}
 
+	public RGBA(int r, int g, int b, int a, int mv){
+		this(r / (float) mv, g / (float) mv, b / (float) mv, a / (float) mv);
+	}
+
 	public RGBA(int r, int g, int b, int a){
-		this(r * 255f, g * 255f, b * 255f, a * 255f);
+		this(r, g, b, a, 255);
 	}
 
 	public RGBA(int r, int g, int b){
@@ -107,19 +111,19 @@ public final class RGBA {
 	}
 
 	public RGBA setRI(int r, int mv){
-		return setRF(r * mv);
+		return setRF(r / (float) mv);
 	}
 
 	public RGBA setGI(int g, int mv){
-		return setGF(g * mv);
+		return setGF(g / (float) mv);
 	}
 
 	public RGBA setBI(int b, int mv){
-		return setBF(b * mv);
+		return setBF(b / (float) mv);
 	}
 
 	public RGBA setAI(int a, int mv){
-		return setAF(a * mv);
+		return setAF(a / (float) mv);
 	}
 
 	public RGBA setRI(int r){
